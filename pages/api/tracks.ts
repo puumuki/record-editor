@@ -1,8 +1,9 @@
 
 
+import type { NextApiRequest, NextApiResponse } from "next";
 import {getRecords, getTracks} from '../../lib/race-recorder/data-store'
 
-export default async function handler(request, response) {
+export default async function handler(request:NextApiRequest, response:NextApiResponse) {
   
   const tracks = await getTracks();      
   const records = await getRecords();

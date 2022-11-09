@@ -2,7 +2,6 @@ import { createSlice, createAsyncThunk, PayloadAction   } from '@reduxjs/toolkit
 import * as api from './race-recorder-api';
 import {Track, Driver, Session, Record} from '../../lib/race-recorder/types';
 import _ from 'lodash';
-import SecondParts from '../../lib/second-parts';
 
 export interface RecordValidity {
   isValid?: boolean|null,
@@ -10,8 +9,8 @@ export interface RecordValidity {
 }
 
 interface TrackEditorModalState {
-  showTrackEditorModal: boolean,
-  trackEditorModalTrack: Track|null,
+  showTrackEditorModal?: boolean,
+  trackEditorModalTrack?: Track|null,
 }
 
 export type SessionEditorState = {
@@ -31,8 +30,8 @@ export type SessionEditorState = {
   status: string
 } & TrackEditorModalState;
 
-interface TrackSessionPayload {
-  trackId: number,
+export interface TrackSessionPayload {
+  trackId: number|null,
   session: Session
 }
 
@@ -85,7 +84,7 @@ export const fetchTracks = createAsyncThunk(
 
 export const updateSession = createAsyncThunk(
   'race-recorder/updateTrackSession',
-  async (payload:TrackSessionPayload, thunkAPI) => {
+  async (payload:TrackSessionPayload) => {
     await api.updateTrackSession(payload);        
     return await api.getAllTracks();
   }
@@ -144,7 +143,11 @@ export const editorSlice = createSlice({
     },
 
     setTrackEditorModal: (state, action: PayloadAction<TrackEditorModalState>) => {      
-      state.trackEditorModalTrack = { ...action.payload.trackEditorModalTrack };      
+      state.trackEditorModalTrack = { 
+        id: action.payload.trackEditorModalTrack?.id ?? null,
+        name: action.payload.trackEditorModalTrack?.name ?? '',
+        sessions: action.payload.trackEditorModalTrack?.sessions ?? []
+      };      
       state.showTrackEditorModal = action.payload.showTrackEditorModal;      
       return state;
     },
@@ -185,11 +188,11 @@ export const editorSlice = createSlice({
     moveDriverToSessionEditor: (state) => {      
       const session = state.sessionEditorSession;
 
-      session.records.push({
+      session?.records.push({
         id: null,
-        time: null,
-        sessions_id: session.id,
-        drivers_id: state.sessionEditorDriverEditFieldDriver.id
+        time: 0, 
+        sessions_id: session?.id,
+        drivers_id: state.sessionEditorDriverEditFieldDriver?.id
       });
       
       state.sessionEditorDriverEditFieldDriver = null;      
@@ -203,9 +206,11 @@ export const editorSlice = createSlice({
 
     setSessionEditorSession: (state, action:PayloadAction<Session>) => {         
       state.sessionEditorSession = action.payload;  
-      state.sessionEditorTrack.sessions = state.sessionEditorTrack.sessions.map( session => {
-        return session.id === action.payload.id ? action.payload : session;                  
-      });
+      if( state.sessionEditorTrack ) {
+        state.sessionEditorTrack.sessions = state.sessionEditorTrack.sessions.map( session => {
+          return session.id === action.payload.id ? action.payload : session;                  
+        });
+      }
       return state;
     },    
 

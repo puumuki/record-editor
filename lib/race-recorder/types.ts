@@ -7,14 +7,14 @@ export interface Driver {
 export interface Record {
   id: number|null,
   time: number,
-  drivers_id: number,
-  sessions_id: number
+  drivers_id?: number|null,
+  sessions_id?: number|null
 }
 
 export interface Session {
   id: number|null,
   time: number,
-  tracks_id: number,      
+  tracks_id?: number|null,      
   records: Record[]
 }
 

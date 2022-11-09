@@ -10,11 +10,16 @@ dayjs.extend(timezone)
 dayjs.locale('fi-fi');
 
 export interface DateTimeParts {
-  date: string,
-  time: string
+  date: string|null,
+  time: string|null
 }
 
-export function unixTimeToLocalTime( unixTime ) {
+/**
+ * Convert unix time to 2022-11-08 12:30:40 format.
+ * @param unixTime Seconds since Jan 01 1970. (UTC)
+ * @returns time as formatted like '2022-11-08 12:30:40'
+ */
+export function unixTimeToLocalTime( unixTime:number ):string {
   const result = dateTimeSeparated( unixTime );  
   
   if( result.date && result.time ) {

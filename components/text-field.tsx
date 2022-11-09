@@ -1,4 +1,15 @@
-
+interface TextFieldProps {
+  id: string, 
+  name: string, 
+  type?: string, 
+  label?: string, 
+  error?: boolean, 
+  success?: boolean,
+  onChange?: React.ChangeEventHandler<HTMLInputElement>, 
+  onKeyDown?: React.KeyboardEventHandler<HTMLInputElement>,
+  value: string, 
+  placeholder?: string
+}
 
 export default function TextField({
   id, 
@@ -7,11 +18,11 @@ export default function TextField({
   label="", 
   error=false, 
   success=false,
-  onChange=null, 
-  onKeyDown=null,
+  onChange=undefined, 
+  onKeyDown=undefined,
   value="", 
   placeholder=""
-}) {
+}:TextFieldProps) {
   return (
     <>
       {label && (
@@ -29,6 +40,4 @@ export default function TextField({
       <div id={`validation-message-${id}`} className="invalid-feedback">{error}</div>
     </>
   )
-  
-
 }

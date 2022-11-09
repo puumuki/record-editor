@@ -45,7 +45,7 @@ export function SessionEditorModal({
     dispatch(showRecordModal(false));    
   }
         
-  function onSaveClicked() {            
+  function onSaveClicked() {                
     dispatch(updateSession({ trackId: track.id,  session: session }));
     dispatch(showRecordModal(false));    
   }
@@ -57,7 +57,7 @@ export function SessionEditorModal({
     }));
   }
 
-  function onRecordTimeChanges( event:Event ) {           
+  function onRecordTimeChanges( event:React.ChangeEvent<HTMLInputElement> ) {           
 
     const target = event.target as HTMLInputElement;
 

@@ -13,7 +13,7 @@ export class SecondParts {
   /**
    * Holds seconds internally
    */
-  private value: number;
+  private value: number = 0;
 
   /**
    * Set seconds to 
@@ -59,14 +59,12 @@ export class SecondParts {
     this.seconds = totalSeconds;
   }
 
-  set seconds( seconds ) {
+  set seconds( seconds:string|number|undefined ) {
     if(typeof seconds === 'string') {
       this.parts = SecondParts.parseTimeParts(seconds);
     }
     else if(typeof seconds === 'number') {
       this.value = seconds;
-    } else {
-      this.value = 0;
     }
   }
 
@@ -86,18 +84,18 @@ export class SecondParts {
   }
 
   /**
-   * 
-   * @param timeString 
+   * Parse timestring to parts
+   * @param time time formatted like 2022-09-01 13:13:399
    * @throw {Error} if string is not valid format
    * @returns {TimeParts} parse time parts form given string 
    */
-  static parseTimeParts(timeString):TimeParts {
+  static parseTimeParts(time:string):TimeParts {
 
-    if( !SecondParts.validate(timeString) ) {
-      throw new Error(`Given string "${timeString}" is in invalid format. Expecting mm:ss:hh formatted string. Where mm are minutes, ss are seconds and hh are hunderths of a second.`)
+    if( !SecondParts.validate(time) ) {
+      throw new Error(`Given string "${time}" is in invalid format. Expecting mm:ss:hh formatted string. Where mm are minutes, ss are seconds and hh are hunderths of a second.`)
     }
 
-    const [minutes, seconds, hundredths] = timeString.split(':');
+    const [minutes, seconds, hundredths] = time.split(':');
 
     return {
       minutes,
@@ -112,7 +110,7 @@ export class SecondParts {
    * @param {string} timeString
    * @return {boolean} true if value is valid false if not.
    */
-  static validate( secondString ) {
+  static validate( secondString:string ):boolean {
     const regexp = /^[0-9]{1,2}:[0-9]{1,2}:[0-9]{1,2}$/;
     return regexp.test(secondString);
   }
@@ -122,7 +120,7 @@ export class SecondParts {
    * Alias to format method.
    * @return {string} format string of given second in format like mm:ss:hh
    */
-  toString() {
+  toString():string {
     return this.format;
   }
 }

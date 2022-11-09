@@ -1,4 +1,5 @@
 import {Track, Driver, Session} from '../../lib/race-recorder/types';
+import { TrackSessionPayload } from './editor-slice';
 
 
 export async function getDrivers():Promise<Driver[]> {
@@ -19,11 +20,6 @@ export async function getAllTracks():Promise<Track[]> {
 
   const responseData = await response.json();
   return responseData.data;
-}
-
-interface TrackSessionPayload {
-  trackId: number,
-  session: Session
 }
 
 export async function updateTrackSession(payload:TrackSessionPayload):Promise<TrackSessionPayload> {

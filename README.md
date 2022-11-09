@@ -1,24 +1,48 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Record Editor
+
+This is a simple race time book keeping web application for keeping track your and your friends racing times. This is a hobby project  created for keeping track times in a Forza Horizon 5 game.
 
 ## Getting Started
 
-First, run the development server:
+First install all dependencies
+
+```bash
+npm install
+```
+
+Second, run the development server:
 
 ```bash
 npm run dev
-# or
-yarn dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
 You can start editing the page by modifying `pages/index.tsx`. The page auto-updates as you edit the file.
 
-[API routes](https://nextjs.org/docs/api-routes/introduction) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.ts`.
+## Database
 
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/api-routes/introduction) instead of React pages.
+Record Editor uses a Postgresql database for storing it's data. All information related to tracks, drivers, sessions and records are hold in the database. For creating database you find a text file holding Record editor's database schema from `database/record-editor-schema.sql` file.
 
-## Learn More
+To dump out database schema form after any alteration can be made by using pg_dump command.
+
+`pg_dump -U <username> -s record-editor > record-editor-schema.sql`
+
+For a database UI you can use pgAdmin4 tool or use the terminal tool. Witch one is easier for you.
+
+Project database settings are stored root of project folder in a file called `.env.local`. This is where Node.js read it's enviroment variables. This file is not stored in version history for opvious security issues.
+
+Example of the file content, to use the application you need to create this file manually root of the folder.
+
+```
+PGSQL_HOST= 127.0.0.1
+PGSQL_PORT= 5432
+PGSQL_DATABASE= record-editor
+PGSQL_USER= 
+PGSQL_PASSWORD= 
+```
+
+## Learn More 
 
 To learn more about Next.js, take a look at the following resources:
 

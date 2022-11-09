@@ -1,22 +1,30 @@
-import SelectField from "../select-field";
+import SelectField, { SelectFieldOption } from "../select-field";
 import { Driver } from "../../lib/race-recorder/types";
 import { showDriverEditField, setDriverEditFieldDriver, moveDriverToSessionEditor } from './editor-slice';
 import { useDispatch } from 'react-redux';
+import React from "react";
 
 /**
  * Format Driver object for use in a select dropdown.
  * @param driver 
  * @returns formatted driver data
  */
-function formatDriverOption( driver:Driver ) {
+function formatDriverOption( driver:Driver ): SelectFieldOption {
   return {
-    value: driver.id,
+    value: String(driver.id),
     text: driver.name
   }
 }
 
-export default function DriverField({edit, drivers}) {
+interface DriverFieldProps {
+  edit: boolean,
+  drivers: Driver[]
+}
+
+export default function DriverField(props:DriverFieldProps) {
  
+  const {edit, drivers} = props;
+
   const dispatch = useDispatch();
 
   function addDriver() {
@@ -24,16 +32,20 @@ export default function DriverField({edit, drivers}) {
     dispatch(showDriverEditField(false));     
   }
 
-  function onDriverSelectionChanges(event) {
+  function onDriverSelectionChanges(event: React.ChangeEvent<HTMLSelectElement>) {
     const drivers_id = parseInt( event.target.value );
-    const driver = drivers.find( driver => driver.id === drivers_id );    
-    dispatch(setDriverEditFieldDriver(driver));       
+    const driver = drivers.find( driver => driver.id === drivers_id );  
+    if(driver) {
+      dispatch(setDriverEditFieldDriver(driver));       
+    }    
   }
 
   function onClick() {
     dispatch(setDriverEditFieldDriver(drivers[0]));  
     dispatch(showDriverEditField(true));
   }
+
+  
 
   return (
     <div className="row">
@@ -42,10 +54,9 @@ export default function DriverField({edit, drivers}) {
       <div className="col-8">
         <SelectField id="driver-name" 
                     name="record-time"                  
-                    label="Kuljettajan nimi"
-                                      
+                    label="Kuljettajan nimi"                                      
                     options={drivers.map(formatDriverOption)}
-                    onChange={onDriverSelectionChanges}
+                    onChange={onDriverSelectionChanges}                    
                     success={false}
                     error={false}></SelectField>
       </div>

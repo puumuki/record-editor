@@ -1,3 +1,4 @@
+import React from "react";
 import { Track } from "../../lib/race-recorder/types";
 import TextField from "../text-field";
 import { setTrackEditorModal, addTrack, updateTrack } from "./editor-slice";
@@ -34,7 +35,7 @@ export default function TrackEditorModel(props: TrackEditorModalProps) {
 
   }
 
-  function onTrackNameChanges(event) {
+  function onTrackNameChanges(event:React.ChangeEvent<HTMLInputElement>) {
     dispatch(setTrackEditorModal({
       showTrackEditorModal: true,
       trackEditorModalTrack: { ...trackEditorModalTrack, name: event.target.value }
