@@ -1,0 +1,95 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "definitions": {
+    "Driver": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "number"
+        },
+        "name": {
+          "type": "string"
+        },
+        "order": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "order"
+      ],
+      "additionalProperties": false
+    },
+    "Record": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "number"
+        },
+        "time": {
+          "type": "number"
+        },
+        "drivers_id": {
+          "type": "number"
+        },
+        "sessions_id": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "id",
+        "time",
+        "drivers_id",
+        "sessions_id"
+      ],
+      "additionalProperties": false
+    },
+    "Session": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "number"
+        },
+        "time": {
+          "type": "number"
+        },
+        "records": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Record"
+          }
+        }
+      },
+      "required": [
+        "id",
+        "time",
+        "records"
+      ],
+      "additionalProperties": false
+    },
+    "Track": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "number"
+        },
+        "name": {
+          "type": "string"
+        },
+        "sessions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Session"
+          }
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "sessions"
+      ],
+      "additionalProperties": false
+    }
+  }
+}
