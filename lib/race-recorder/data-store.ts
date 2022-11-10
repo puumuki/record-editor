@@ -3,6 +3,14 @@ import {Query} from 'pg';
 import connection from '../../lib/race-recorder/postgresql-connection';
 import { Session, Track, Record } from './types';
 
+/**
+ * Log error message to console
+ * @param error 
+ */
+function logErrors( error:any ) {
+  console.log( error.message, error.stack );
+}
+
 export enum DatabaseSequences {
   Drivers = 'drivers_id_seq',
   Records = 'records_id_seq',
@@ -52,8 +60,6 @@ export async function getRecords() {
   });
 }
 
-
-
 // --- INSERT & UPDATED queries --
 
 export async function createTrack(track:Track):Promise<Track> {
@@ -64,7 +70,9 @@ export async function createTrack(track:Track):Promise<Track> {
     const result = await client.query('INSERT INTO tracks("name") VALUES ($1) RETURNING id;', [track.name])
     track.id = result.rows[0].id;      
     await client.query('COMMIT');    
-  } catch( error ) {
+  } catch( error ) {    
+    logErrors(error);
+    await client.query('ROLLBACK');
     throw error;
   } finally {
     client.release();
@@ -80,7 +88,9 @@ export async function updateTrack(track:Track):Promise<Track>  {
     await client.query('BEGIN');
     await client.query('UPDATE tracks SET name=$1 WHERE id = $2', [track.name,track.id])
     await client.query('COMMIT');    
-  } catch( error ) {
+  } catch( error ) {    
+    logErrors(error);
+    await client.query('ROLLBACK');
     throw error;
   } finally {
     client.release();
@@ -96,7 +106,9 @@ export async function deleteSession(session:Session) {
     await client.query('BEGIN');
     await client.query('UPDATE sessions SET deleted = true WHERE id = $1', [session.id])
     await client.query('COMMIT');    
-  } catch( error ) {
+  } catch( error ) {    
+    logErrors(error);
+    await client.query('ROLLBACK');
     throw error;
   } finally {
     client.release();
@@ -147,6 +159,7 @@ export async function updateSession(session:Session) {
         
     await client.query('COMMIT');
   } catch(error) {    
+    logErrors(error);
     await client.query('ROLLBACK');
     throw error;
   } finally {
@@ -157,12 +170,6 @@ export async function updateSession(session:Session) {
 //export async function createRecord(record:Record) {}
 
 // -- Query objects --
-
-function queryLastInsertedId(sequence:DatabaseSequences) {
-  const sql = `SELECT currval($1)`;
-  return new Query( sql, [sequence.valueOf()] );
-}
-
 function queryCreateSession(session:Session) {
   const sql = /*sql*/`INSERT INTO sessions (
     "time"
