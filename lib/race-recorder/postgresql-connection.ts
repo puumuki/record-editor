@@ -2,8 +2,8 @@ import { Pool } from "pg";
 
 let connection:Pool;
 
-if( process.env.PSQL_CONNECT_STRING ) {
-  connection = new Pool({ connectionString: process.env.PSQL_CONNECT_STRING });  
+if( process.env.DATABASE_URL ) {
+  connection = new Pool({ connectionString: process.env.DATABASE_URL });  
 } else {
   connection = new Pool({
     user: process.env.PGSQL_USER,
