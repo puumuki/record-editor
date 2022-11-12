@@ -14,7 +14,7 @@ export default async function handler(request:NextApiRequest, response:NextApiRe
     console.log("Session", JSON.stringify(session, null, 2))
 
     if(!session) {
-      response.status(401).json({ status: 401, message: 'Permission denied' });
+      return response.status(401).json({ status: 401, message: 'Permission denied' });
     }
   }
 
