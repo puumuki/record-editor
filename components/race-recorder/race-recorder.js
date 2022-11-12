@@ -16,6 +16,7 @@ import {
 } from './editor-slice'
 import { sortSessionByTime } from './helpers';
 import TrackEditorModel from './track-editor-modal';
+import { useSession } from 'next-auth/react';
 
 function createColumns( drivers ) {
 
@@ -25,8 +26,8 @@ function createColumns( drivers ) {
   return [{ text: 'Aika'}, ...driverColumns, { text:''}];
 }
 
-function createRecordRows({track_id, drivers, tracks}) {
-
+function createRecordRows({track_id, drivers, tracks}, sessionObject) {
+  
   const track = tracks.find( track => track.id === track_id );
 
   if( !track ) {
@@ -50,13 +51,18 @@ function createRecordRows({track_id, drivers, tracks}) {
       })}
 
       <td key={`session-${index}-2`} className="text-end">
-      <button className='btn btn-outline-secondary btn-delete-session' 
+        {sessionObject &&(
+          <>
+          <button className='btn btn-outline-secondary btn-delete-session' 
               data-track-id={track.id}
               data-session-id={session.id}>Poista</button>
 
-        <button className='btn btn-outline-secondary btn-edit-session ms-3' 
+          <button className='btn btn-outline-secondary btn-edit-session ms-3' 
                 data-track-id={track.id}
                 data-session-id={session.id}>Muokkaa</button>
+          </>
+        )}
+
       </td>
     </tr>
   })
@@ -64,6 +70,8 @@ function createRecordRows({track_id, drivers, tracks}) {
 
 export default function RaceRecorder() {  
 
+  const { data: session } = useSession();
+  
   const state = useSelector( (state) => state.editor );  
   
   const dispatch = useDispatch();
@@ -142,10 +150,12 @@ export default function RaceRecorder() {
           </select>      
         </div>
 
+        {session && (
         <div className='col-8'>
           <button className="btn btn-primary me-3" onClick={onClickEditTrack.bind(this, state.track_id)}>Muokkaa</button>
           <button className="btn btn-primary" onClick={onClickAddTrack}>Lisää</button>
         </div>
+        )}
 
         <div className='col-12'>
 
@@ -159,15 +169,18 @@ export default function RaceRecorder() {
             </thead>
 
             <tbody>              
-              {createRecordRows(state)}              
+              {createRecordRows(state, session)}              
             </tbody>
 
           </table>
         </div>
 
+        {session && (
         <div className='col-12 d-flex justify-content-end'>
           <button className='btn btn-primary' onClick={onClickAddSession}>Lisää sessio</button>
         </div>
+        )}
+
 
       </div>
 

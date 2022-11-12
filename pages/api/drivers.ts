@@ -1,7 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import {getDrivers} from '../../lib/race-recorder/data-store'
 
-export default async function handler(request:NextApiRequest, response:NextApiResponse) {
+export default async function handler(request:NextApiRequest, response:NextApiResponse) {  
   try {
     const drivers = await getDrivers();  
     response.json({

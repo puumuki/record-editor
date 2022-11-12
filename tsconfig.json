@@ -16,6 +16,6 @@
     "incremental": true,
     "downlevelIteration":true
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "components/select-field.tsx"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "components/select-field.tsx", "server.js"],
   "exclude": ["node_modules"]
 }

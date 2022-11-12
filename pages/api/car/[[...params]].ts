@@ -2,8 +2,21 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import {getCar, createCar, deleteCar, updateCar} from '../../../lib/race-recorder/data-store';
 import {createCarsValidator} from "../../../lib/race-recorder/schema-validtor";
+import { unstable_getServerSession } from "next-auth/next";
+import { authOptions } from "../auth/[...nextauth]";
 
 export default async function handler(request:NextApiRequest, response:NextApiResponse) {
+
+  //Protect data manipulating operations 
+  if(request.method !== 'GET') {
+    const session = await unstable_getServerSession(request, response, authOptions);
+
+    console.log("Session", JSON.stringify(session, null, 2))
+
+    if(!session) {
+      response.status(401).json({ status: 401, message: 'Permission denied' });
+    }
+  }
 
   const validator = createCarsValidator();
   const data = request.body;

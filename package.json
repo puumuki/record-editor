@@ -7,7 +7,7 @@
     "name": "Teemu Puukko"
   },
   "scripts": {
-    "dev": "next dev",
+    "dev": "node server.js",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
@@ -29,6 +29,7 @@
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-redux": "8.0.5",
+    "sass": "^1.56.1",
     "typescript": "4.8.4",
     "vitest": "0.24.5"
   },
