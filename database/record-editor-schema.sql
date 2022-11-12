@@ -38,3 +38,25 @@ ALTER TABLE ONLY records ADD CONSTRAINT unique_session_and_driver UNIQUE (sessio
 ALTER TABLE ONLY records ADD CONSTRAINT drivers_fk FOREIGN KEY (drivers_id) REFERENCES drivers(id);
 ALTER TABLE ONLY records ADD CONSTRAINT session_fk FOREIGN KEY (sessions_id) REFERENCES sessions(id);
 ALTER TABLE ONLY sessions ADD CONSTRAINT track_fk FOREIGN KEY (tracks_id) REFERENCES tracks(id);
+
+--- Migration 2022-11-10 ---
+
+CREATE SEQUENCE cars_id_seq;
+
+CREATE TABLE cars (
+    id integer DEFAULT nextval('cars_id_seq'::regclass) NOT NULL,
+    name character varying,
+    scores integer NOT NULL DEFAULT 0,
+    drivers_id integer NOT NULL,
+    deleted boolean DEFAULT false
+);
+
+ALTER TABLE cars ADD CONSTRAINT id PRIMARY KEY (id);
+
+-- Can be null not forced to be filled --
+ALTER TABLE records ADD COLUMN cars_id integer;
+
+
+-- New foreign keys --
+ALTER TABLE ONLY records ADD CONSTRAINT records_cars_fk FOREIGN KEY (cars_id) REFERENCES cars(id);
+ALTER TABLE ONLY cars ADD CONSTRAINT cars_drivers_fk FOREIGN KEY (drivers_id) REFERENCES drivers(id);

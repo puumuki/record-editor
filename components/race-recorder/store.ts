@@ -1,4 +1,5 @@
 import { configureStore } from '@reduxjs/toolkit';
+import { TypedUseSelectorHook, useSelector } from 'react-redux';
 import editorReducer from './editor-slice';
 
 const store = configureStore ({
@@ -11,5 +12,6 @@ const store = configureStore ({
 export type RootState = ReturnType<typeof store.getState>
 // Inferred type: {posts: PostsState, comments: CommentsState, users: UsersState}
 export type AppDispatch = typeof store.dispatch
+export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector;
 
 export default store;

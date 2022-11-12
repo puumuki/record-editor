@@ -1,7 +1,7 @@
 import {Query} from 'pg';
 
 import connection from '../../lib/race-recorder/postgresql-connection';
-import { Session, Track, Record } from './types';
+import { Session, Track, Record, Car, Driver } from './types';
 
 /**
  * Log error message to console
@@ -11,22 +11,27 @@ function logErrors( error:any ) {
   console.log( error.message, error.stack );
 }
 
-export enum DatabaseSequences {
-  Drivers = 'drivers_id_seq',
-  Records = 'records_id_seq',
-  Tracks = 'tracks_id_seq',
-  Sessions = 'sessions_id_seq'  
+// --- Data reading queries --
+export async function getCars():Promise<Car[]> {
+  const sql = `select * from cars WHERE deleted = false;`;
+  const result = await connection.query(sql);
+  return result.rows;
 }
 
-// --- Data reading queries --
+export async function getCar(id:number):Promise<Car|null> {
+  const sql = `select * from cars WHERE id = $1 AND deleted = false;`;
+  const result = await connection.query(sql, [id]);  
+  return result.rows.length > 0 ? result.rows[0] : null;
+}
 
-export async function getDrivers() {
+
+export async function getDrivers():Promise<Driver[]> {
   const sql = `SELECT * FROM drivers ORDER BY drivers.order ASC;`;
   const result = await connection.query(sql);
   return result.rows;
 }
 
-export async function getTracks() {
+export async function getTracks():Promise<Track[]> {
   const sql = /*sql*/`SELECT * FROM tracks;`;
   const result = await connection.query(sql);  
   return result.rows;
@@ -61,6 +66,61 @@ export async function getRecords() {
 }
 
 // --- INSERT & UPDATED queries --
+
+export async function createCar(car:Car):Promise<Car> {
+  const client = await connection.connect();
+
+  try {
+    await client.query('BEGIN');
+    const result = await client.query('INSERT INTO cars("name","scores","drivers_id") VALUES ($1, $2, $3) RETURNING id;', [car.name, car.scores, car.drivers_id])
+    car.id = result.rows[0].id;      
+    await client.query('COMMIT');    
+  } catch( error ) {    
+    logErrors(error);
+    await client.query('ROLLBACK');
+    throw error;
+  } finally {
+    client.release();
+  }
+
+  return car;
+}
+
+export async function updateCar(car:Car):Promise<Car>  {
+  const client = await connection.connect(); 
+
+  try {
+    await client.query('BEGIN');
+    await client.query('UPDATE cars SET name=$1, scores=$2 WHERE id = $3 AND deleted = false;', [car.name, car.scores,car.id])
+    await client.query('COMMIT');    
+  } catch( error ) {    
+    logErrors(error);
+    await client.query('ROLLBACK');
+    throw error;
+  } finally {
+    client.release();
+  }  
+
+  return car;
+}
+
+export async function deleteCar(car:Car):Promise<Car>  {
+  const client = await connection.connect(); 
+
+  try {
+    await client.query('BEGIN');
+    await client.query('UPDATE cars SET deleted=true WHERE id = $1 AND deleted = false;', [car.id])
+    await client.query('COMMIT');    
+  } catch( error ) {    
+    logErrors(error);
+    await client.query('ROLLBACK');
+    throw error;
+  } finally {
+    client.release();
+  }  
+
+  return car;
+}
 
 export async function createTrack(track:Track):Promise<Track> {
   const client = await connection.connect();
@@ -166,6 +226,9 @@ export async function updateSession(session:Session) {
     client.release();
   }  
 }
+
+
+
 
 //export async function createRecord(record:Record) {}
 

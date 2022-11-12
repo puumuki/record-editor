@@ -90,7 +90,7 @@ export function SessionEditorModal({
   const orderedDrivers = [...drivers].sort( driver => driver.order );
 
   return (
-    <div className={`modal fade ${sessionEditorOpen ? 'show' : ''}`} tabIndex={-1} role="dialog">
+    <dialog className={`modal fade ${sessionEditorOpen ? 'show' : ''}`} tabIndex={-1} role="dialog">
       <div className="modal-dialog" role="document">
         <div className="modal-content">
           <div className="modal-header">
@@ -156,6 +156,6 @@ export function SessionEditorModal({
         </div>
 
       </div>
-    </div>
+    </dialog>
   );
 }

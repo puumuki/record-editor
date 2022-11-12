@@ -51,7 +51,7 @@ export default function TrackEditorModel(props: TrackEditorModalProps) {
   };  
 
   return (
-    <div className={`modal fade ${showTrackEditorModal ? 'show' : ''}`} tabIndex={-1} role="dialog">
+    <dialog className={`modal fade ${showTrackEditorModal ? 'show' : ''}`} tabIndex={-1} role="dialog">
       <div className="modal-dialog" role="document">
         <div className="modal-content">
           <div className="modal-header">
@@ -75,6 +75,6 @@ export default function TrackEditorModel(props: TrackEditorModalProps) {
         </div>
 
       </div>
-    </div>
+    </dialog>
   );
 }

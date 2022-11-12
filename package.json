@@ -4,7 +4,7 @@
   "private": false,
   "license": "MIT",
   "author": {
-    "name": "Teemu Puukko"    
+    "name": "Teemu Puukko"
   },
   "scripts": {
     "dev": "next dev",
@@ -18,11 +18,13 @@
     "@types/node": "18.11.9",
     "@types/react": "18.0.25",
     "@types/react-dom": "18.0.8",
+    "ajv": "^8.11.0",
     "dayjs": "1.11.6",
     "eslint": "8.27.0",
     "eslint-config-next": "13.0.2",
     "lodash": "^4.17.21",
     "next": "13.0.2",
+    "next-auth": "^4.16.4",
     "pg": "8.8.0",
     "react": "18.2.0",
     "react-dom": "18.2.0",
@@ -32,6 +34,7 @@
   },
   "devDependencies": {
     "@types/lodash": "^4.14.188",
-    "@types/pg": "^8.6.5"
+    "@types/pg": "^8.6.5",
+    "ts-json-schema-generator": "^1.1.2"
   }
 }

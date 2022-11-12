@@ -1,6 +1,6 @@
 
 
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import { unixTimeToLocalTime } from '../../lib/date-helper';
 import TimeLeftField from '../time-left-field';
 import {SessionEditorModal} from './session-editor-modal';
@@ -10,15 +10,11 @@ import { useSelector, useDispatch } from 'react-redux';
 import { 
   changeTrack, 
   fetchTracksAndDrivers, 
-  showRecordModal, 
   setRecordModal, 
-  updateTrackDrivers,
-  updateSession, 
   deleteSession,
   setTrackEditorModal
 } from './editor-slice'
 import { sortSessionByTime } from './helpers';
-import TrackInputField from './track-editor-modal';
 import TrackEditorModel from './track-editor-modal';
 
 function createColumns( drivers ) {
@@ -139,7 +135,7 @@ export default function RaceRecorder() {
         
       <div className="row">
         <div className="col-3">
-          <select className="form-select" defaultValue={state.track_id} onChange={onTrackChange} aria-label="Default select example">
+          <select className="form-select" defaultValue={state.track_id} onChange={onTrackChange} aria-label="Valitse kenttä">
            {state.tracks.map( track => {
               return <option key={track.id} value={track.id}>{track.name}</option>
             })}

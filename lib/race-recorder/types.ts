@@ -23,3 +23,10 @@ export interface Track {
   name: string,
   sessions: Session[]
 }
+
+export interface Car {
+  id: number|null,
+  name: string,
+  scores: number,
+  drivers_id?: number|null  
+}

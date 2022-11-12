@@ -5,7 +5,10 @@
       "type": "object",
       "properties": {
         "id": {
-          "type": "number"
+          "type": [
+            "number",
+            "null"
+          ]
         },
         "name": {
           "type": "string"
@@ -25,23 +28,30 @@
       "type": "object",
       "properties": {
         "id": {
-          "type": "number"
+          "type": [
+            "number",
+            "null"
+          ]
         },
         "time": {
           "type": "number"
         },
         "drivers_id": {
-          "type": "number"
+          "type": [
+            "number",
+            "null"
+          ]
         },
         "sessions_id": {
-          "type": "number"
+          "type": [
+            "number",
+            "null"
+          ]
         }
       },
       "required": [
         "id",
-        "time",
-        "drivers_id",
-        "sessions_id"
+        "time"
       ],
       "additionalProperties": false
     },
@@ -49,10 +59,19 @@
       "type": "object",
       "properties": {
         "id": {
-          "type": "number"
+          "type": [
+            "number",
+            "null"
+          ]
         },
         "time": {
           "type": "number"
+        },
+        "tracks_id": {
+          "type": [
+            "number",
+            "null"
+          ]
         },
         "records": {
           "type": "array",
@@ -72,7 +91,10 @@
       "type": "object",
       "properties": {
         "id": {
-          "type": "number"
+          "type": [
+            "number",
+            "null"
+          ]
         },
         "name": {
           "type": "string"
@@ -88,6 +110,35 @@
         "id",
         "name",
         "sessions"
+      ],
+      "additionalProperties": false
+    },
+    "Car": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "name": {
+          "type": "string"
+        },
+        "scores": {
+          "type": "number"
+        },
+        "drivers_id": {
+          "type": [
+            "number",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "scores"
       ],
       "additionalProperties": false
     }

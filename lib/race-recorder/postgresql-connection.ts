@@ -15,10 +15,7 @@ if( process.env.DATABASE_URL ) {
     password: process.env.PGSQL_PASSWORD,
     host: process.env.PGSQL_HOST,
     port: parseInt(process.env.PGSQL_PORT!),
-    database: process.env.PGSQL_DATABASE,
-    ssl: {
-      rejectUnauthorized: false
-    }
+    database: process.env.PGSQL_DATABASE
   });  
 }
 
