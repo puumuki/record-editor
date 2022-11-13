@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import {createTrack, updateTrack, updateSession, deleteSession} from '../../../lib/race-recorder/data-store';
+import {createTrack, updateTrack} from '../../../lib/race-recorder/data-store';
 import { unstable_getServerSession } from "next-auth/next";
 import { authOptions } from "../auth/[...nextauth]";
 
@@ -32,40 +32,10 @@ export default async function handler(request:NextApiRequest, response:NextApiRe
         message: `Updated track: track.id = ${track.id}`
       })            
     }   
-  } else if( request.query?.params?.length == 2 ) {
-
-    const [trackId, action] = request.query.params;    
-
-    if( action === 'session' && request.method === 'POST') {   
-      data.tracks_id = trackId;   
-      await updateSession( data );            
-      response.json({
-        status: 200,               
-        message: `Session udpated: session.id = ${data.id}`
-      });
-
-    } else if( action === 'delete' && request.method === 'DELETE') {
-  
-      await deleteSession( data );
-
-      response.json({
-        status: 200,               
-        message: `Session udpated: session.id = ${data.id}`
-      });
-
-    } else {
-      response.json({
-        status: 404,
-        message: `Track not found with track id ${trackId}`
-      });
-    }
-
   } else {
     response.json({
       status: 403,
       message: `Bad request`
     });
   }
-
-
 }

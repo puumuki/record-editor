@@ -159,19 +159,17 @@ export async function updateTrack(track:Track):Promise<Track>  {
 function queryUpdateRecord(record:Record) {
   const sql = /*sql*/`UPDATE records SET 
     "time" = $1,
-    "drivers_id" = $2,
-    "sessions_id" = $3
-  WHERE id = $4; `;
+    "drivers_id" = $2,    
+  WHERE id = $3; `;
   
-  return new Query( sql, [record.time, record.drivers_id, record.sessions_id, record.id])  
+  return new Query( sql, [record.time, record.drivers_id, record.id])  
 }
 
 function queryCreateRecord(record:Record) {
-  const sql = /*sql*/`INSERT INTO records (time, drivers_id, sessions_id) VALUES (
-    $1, $2, $3
-  ) 
-  ;`;  
-  return new Query( sql, [record.time, record.drivers_id, record.sessions_id])  
+  const sql = /*sql*/`INSERT INTO records (time, drivers_id, cars_id, tracks_id) VALUES (
+    $1, $2, $3, $4
+  );`;  
+  return new Query( sql, [record.time, record.drivers_id, record.cars_id, record.tracks_id])  
 }
 
 

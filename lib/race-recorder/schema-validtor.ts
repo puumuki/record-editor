@@ -16,10 +16,6 @@ export const createDriverValidator = () => {
   return ajv.compile(schema.definitions.Driver)
 }
 
-export const createSessionValidator = () => {
-  return ajv.compile(schema.definitions.Session)
-}
-
 export const createRecordValidator = () => {
-  return ajv.compile(schema.definitions.Session)
+  return ajv.compile(schema.definitions.Record)
 }

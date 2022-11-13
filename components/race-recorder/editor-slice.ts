@@ -158,7 +158,7 @@ export const editorSlice = createSlice({
       })
       .addCase(addTrack.fulfilled, (state, action) => {
         state.status = 'succeeded';     
-        state.track_id = action.payload.id;       
+        state.track_id = action.payload.id ?? undefined;       
         state.showTrackEditorModal = false;
         return state;
       })
@@ -173,7 +173,7 @@ export const editorSlice = createSlice({
       })
       .addCase(updateTrack.fulfilled, (state, action) => { 
         state.status = 'succeeded';
-        state.track_id = action.payload.id;         
+        state.track_id = action.payload.id ?? undefined;         
         state.showTrackEditorModal = false;        
         return state;
       })
