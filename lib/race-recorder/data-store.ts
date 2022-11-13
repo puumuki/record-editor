@@ -1,7 +1,7 @@
 import {Query} from 'pg';
 
 import connection from '../../lib/race-recorder/postgresql-connection';
-import { Session, Track, Record, Car, Driver } from './types';
+import { Track, Record, Car, Driver } from './types';
 
 /**
  * Log error message to console
@@ -39,28 +39,25 @@ export async function getTracks():Promise<Track[]> {
 
 export async function getRecords() {
   const sql = /*sql*/`SELECT 
-	tracks.id as track_id, 
-		
-	sessions.id as session_id,
-	sessions.time as session_time,
-  sessions.tracks_id as session_tracks_id,
-	
-	records.time as record_time,
-	records.drivers_id as record_driver_id,
-  records.id as record_id
+  tracks.id as track_id, 
+  records.time as record_time,
+  records.drivers_id as record_driver_id,
+  records.id as record_id,
+  records.tracks_id as tracks_id,
+  records.cars_id as tracks_cars_id
 
   FROM tracks 
-  LEFT JOIN sessions ON sessions.tracks_id = tracks.id
-  LEFT JOIN records ON records.sessions_id = sessions.id
+  LEFT JOIN records ON records.tracks_id = tracks.id
   
-  WHERE sessions.deleted = false;`;
+  WHERE tracks.deleted = false AND records.deleted = false
+  ORDER BY tracks_id, record_time ASC
+  ;`;
 
   const result = await connection.query(sql);
   
   //For some reason bigint datatype is returned as a string, here we convert it to int.
   return result.rows.map( row => {
-    row.record_time = row.record_time;
-    row.session_time = parseInt(row.session_time);
+    row.record_time = row.record_time;    
     return row;
   });
 }
@@ -157,99 +154,6 @@ export async function updateTrack(track:Track):Promise<Track>  {
   }  
 
   return track;
-}
-
-export async function deleteSession(session:Session) {
-  const client = await connection.connect();
-
-  try {
-    await client.query('BEGIN');
-    await client.query('UPDATE sessions SET deleted = true WHERE id = $1', [session.id])
-    await client.query('COMMIT');    
-  } catch( error ) {    
-    logErrors(error);
-    await client.query('ROLLBACK');
-    throw error;
-  } finally {
-    client.release();
-  }
-
-  return session;
-}
-
-/**
- * Update sessions information
- * @param session single race session information 
- * @throw {Error} if update faces an error
- */
-export async function updateSession(session:Session) {
-
-  const client = await connection.connect()
-
-  try {    
-    await client.query('BEGIN');
-
-    if( session.id ) {
-      await client.query( queryUpdateSession(session) );
-    } else {
-      //This is only way I got client.query to return that id.. 
-      const result = await client.query(`INSERT INTO sessions ("time", "tracks_id") VALUES ( $1, $2 ) RETURNING id`,[ session.time, session.tracks_id ]);
-      session.id = result.rows[0].id;      
-    }
-
-    const promises = session.records.map( record => {
-      
-      const data = {
-        id: record.id,
-        time: record.time,
-        drivers_id: record.drivers_id,
-        sessions_id: session.id
-      }
-
-      let query;
-
-      if( data.id ) {        
-        return client.query( queryUpdateRecord(data) );    
-      } else {        
-        return client.query( queryCreateRecord(data) )        
-      }          
-    })
-
-    await Promise.all(promises);
-        
-    await client.query('COMMIT');
-  } catch(error) {    
-    logErrors(error);
-    await client.query('ROLLBACK');
-    throw error;
-  } finally {
-    client.release();
-  }  
-}
-
-
-
-
-//export async function createRecord(record:Record) {}
-
-// -- Query objects --
-function queryCreateSession(session:Session) {
-  const sql = /*sql*/`INSERT INTO sessions (
-    "time"
-  ) VALUES ( $1 ) RETURNING id`;
-
-  return new Query( sql, [session.time]);
-}
-
-function queryUpdateSession(session:Session) {
-  const sql = /*sql*/`UPDATE sessions SET 
-    "time" = $1
-  WHERE id = $2; `;
-
-  return {
-   text: sql, 
-   values: [session.time, session.id]
-  }
 }
 
 function queryUpdateRecord(record:Record) {

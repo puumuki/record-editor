@@ -47,43 +47,17 @@
             "number",
             "null"
           ]
-        }
-      },
-      "required": [
-        "id",
-        "time"
-      ],
-      "additionalProperties": false
-    },
-    "Session": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": [
-            "number",
-            "null"
-          ]
-        },
-        "time": {
-          "type": "number"
         },
         "tracks_id": {
           "type": [
             "number",
             "null"
           ]
-        },
-        "records": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/Record"
-          }
         }
       },
       "required": [
         "id",
-        "time",
-        "records"
+        "time"
       ],
       "additionalProperties": false
     },
@@ -99,17 +73,14 @@
         "name": {
           "type": "string"
         },
-        "sessions": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/Session"
-          }
+        "description": {
+          "type": "string"
         }
       },
       "required": [
         "id",
         "name",
-        "sessions"
+        "description"
       ],
       "additionalProperties": false
     },

@@ -6,12 +6,12 @@ import { useAppDispatch } from "./hooks";
 
 export interface TrackEditorModalProps {
   showTrackEditorModal: boolean,
-  trackEditorModalTrack: Track
+  trackEditorModalTrack?: Track
 }
 
 export default function TrackEditorModel(props: TrackEditorModalProps) {
 
-  const {showTrackEditorModal, trackEditorModalTrack} = props;
+  const {showTrackEditorModal, trackEditorModalTrack={ id: null, name: '', records: []}} = props;
 
   const dispatch = useAppDispatch();
 

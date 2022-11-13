@@ -60,3 +60,23 @@ ALTER TABLE records ADD COLUMN cars_id integer;
 -- New foreign keys --
 ALTER TABLE ONLY records ADD CONSTRAINT records_cars_fk FOREIGN KEY (cars_id) REFERENCES cars(id);
 ALTER TABLE ONLY cars ADD CONSTRAINT cars_drivers_fk FOREIGN KEY (drivers_id) REFERENCES drivers(id);
+ALTER TABLE ONLY tracks ADD CONSTRAINT track_name_uniq UNIQUE (name);
+
+ALTER TABLE ONLY records DROP CONSTRAINT unique_session_and_driver;
+ALTER TABLE ONLY records DROP CONSTRAINT session_fk;
+ALTER TABLE ONLY sessions DROP CONSTRAINT track_fk;
+ALTER TABLE ONLY records DROP COLUMN sessions_id;
+
+
+TRUNCATE TABLE records;
+TRUNCATE TABLE sessions;
+TRUNCATE TABLE tracks;
+
+ALTER TABLE ONLY records ADD tracks_id integer NOT NULL;
+ALTER TABLE ONLY records ADD CONSTRAINT track_fk FOREIGN KEY (tracks_id) REFERENCES tracks(id);
+
+ALTER TABLE ONLY tracks ADD COLUMN description character varying;
+ALTER TABLE ONLY tracks ADD COLUMN deleted boolean DEFAULT false;
+ALTER TABLE ONLY records ADD COLUMN deleted boolean DEFAULT false;
+
+DROP TABLE sessions;

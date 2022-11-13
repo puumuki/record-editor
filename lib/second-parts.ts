@@ -40,7 +40,7 @@ export class SecondParts {
     return {    
       minutes: this.pad( Math.floor(this.value / 60) ), 
       seconds: this.pad( Math.floor(this.value % 60) ),
-      hundredths: this.pad( (this.value % 1).toFixed(4).slice(2,4) )
+      hundredths: this.pad( (this.value % 1).toFixed(5).slice(2,5) )
     }
   }
 
@@ -76,7 +76,7 @@ export class SecondParts {
    */
   get format() {
     const {minutes, seconds, hundredths}  = this.parts;
-    return `${minutes}:${seconds}:${hundredths}`;    
+    return `${minutes}:${seconds}.${hundredths}`;    
   }      
 
   private pad(number:number|string) {
@@ -92,16 +92,22 @@ export class SecondParts {
   static parseTimeParts(time:string):TimeParts {
 
     if( !SecondParts.validate(time) ) {
-      throw new Error(`Given string "${time}" is in invalid format. Expecting mm:ss:hh formatted string. Where mm are minutes, ss are seconds and hh are hunderths of a second.`)
+      throw new Error(`Given string "${time}" is in invalid format. Expecting mm:ss.hhh formatted string. Where mm are minutes, ss are seconds and hhh are hunderths of a second.`)
     }
 
-    const [minutes, seconds, hundredths] = time.split(':');
+    const partsRegExp = /^([0-9]{1,2}):([0-9]{1,2})\.([0-9]{1,3})$/;
+    const parts = time.match(partsRegExp);    
 
-    return {
-      minutes,
-      seconds,
-      hundredths
+    if( parts ) {
+      const [all, minutes, seconds, hundredths] = parts;
+      return {
+        minutes,
+        seconds,
+        hundredths
+      }
     }
+
+    return { minutes: '', seconds: '', hundredths: '' };    
   }
 
   /**
@@ -111,7 +117,7 @@ export class SecondParts {
    * @return {boolean} true if value is valid false if not.
    */
   static validate( secondString:string ):boolean {
-    const regexp = /^[0-9]{1,2}:[0-9]{1,2}:[0-9]{1,2}$/;
+    const regexp = /^[0-9]{1,2}:[0-9]{1,2}\.[0-9]{1,3}$/;
     return regexp.test(secondString);
   }
 

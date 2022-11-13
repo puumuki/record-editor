@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk, PayloadAction   } from '@reduxjs/toolkit'
 import * as api from './race-recorder-api';
-import {Track, Driver, Session, Record} from '../../lib/race-recorder/types';
+import {Track, Driver, Record, Car} from '../../lib/race-recorder/types';
 import _ from 'lodash';
 
 export interface RecordValidity {
@@ -13,44 +13,23 @@ interface TrackEditorModalState {
   trackEditorModalTrack?: Track|null,
 }
 
-export type SessionEditorState = {
-  track_id: number|null,
+export type RecordEditorState = {
+  track_id?: number,
 
   tracks: Track[],
   drivers: Driver[],
-
-  sessionEditorOpen: boolean, 
-  sessionEditorSession: Session|null,        
-  sessionEditorTrack: Track|null,
-
-  sessionEditorDriverEditFieldDriver: Driver|null,
-  sessionEditorDriverEditField: boolean,
-  sessionEditorRecordValidity: RecordValidity[]
+  cars: Car[],
 
   status: string
+  
 } & TrackEditorModalState;
 
-export interface TrackSessionPayload {
-  trackId: number|null,
-  session: Session
-}
-
-
-
-const initialState:SessionEditorState = {
-  track_id: null, 
+const initialState:RecordEditorState = {
+  track_id: undefined, 
 
   tracks: [],
   drivers: [],
-  
-  sessionEditorOpen: false, 
-  sessionEditorSession: null,      
-  
-  sessionEditorTrack: null,
-  
-  sessionEditorDriverEditFieldDriver: null,
-  sessionEditorDriverEditField: false,
-  sessionEditorRecordValidity: [],
+  cars: [],
 
   showTrackEditorModal: false,
   trackEditorModalTrack: null,
@@ -58,12 +37,13 @@ const initialState:SessionEditorState = {
   status: ''
 };
 
-export const fetchTracksAndDrivers = createAsyncThunk(
-  'race-recorder/fetchTracksAndDrivers',
+export const fetchTracksDriversCars = createAsyncThunk(
+  'race-recorder/fetchTracksDriversCars',
   async () => {
     return await Promise.all([
       api.getDrivers(),
       api.getAllTracks(),
+      api.getCars()
     ]);           
   }
 )
@@ -82,28 +62,11 @@ export const fetchTracks = createAsyncThunk(
   }
 );
 
-export const updateSession = createAsyncThunk(
-  'race-recorder/updateTrackSession',
-  async (payload:TrackSessionPayload) => {
-    await api.updateTrackSession(payload);        
-    return await api.getAllTracks();
-  }
-);
-
-export const deleteSession = createAsyncThunk(
-  'race-recorder/deleteTrackSession',
-  async (payload:Session, thunkAPI) => {
-    const respone = await api.deleteTrackSession(payload);            
-    thunkAPI.dispatch(fetchTracksAndDrivers())
-    return respone;
-  }
-);
-
 export const addTrack = createAsyncThunk(
   'race-recorder/addTrack',
   async (payload:Track,tuckApi) => {
     const respone = await api.addTrack(payload);
-    tuckApi.dispatch(fetchTracksAndDrivers())           
+    tuckApi.dispatch(fetchTracksDriversCars())           
     return respone;
   }
 );
@@ -112,7 +75,7 @@ export const updateTrack = createAsyncThunk(
   'race-recorder/updateTrack',
   async (payload:Track, tuckApi) => {
     const respone = await api.updateTrack(payload);
-    tuckApi.dispatch(fetchTracksAndDrivers())
+    tuckApi.dispatch(fetchTracksDriversCars())
     return respone;
   }
 );
@@ -123,13 +86,6 @@ export const updateTrackDrivers = createAsyncThunk(
     return await api.updateTrackDrivers(payload);        
   }
 );
-
-interface SessionEditorModalState {
-  sessionEditorOpen: boolean,
-  sessionEditorSession: Session,
-  sessionEditorTrack: Track,
-  sessionEditorDriverEditField?: boolean  
-}
 
 export const editorSlice = createSlice({
   name: 'editor',
@@ -146,103 +102,38 @@ export const editorSlice = createSlice({
       state.trackEditorModalTrack = { 
         id: action.payload.trackEditorModalTrack?.id ?? null,
         name: action.payload.trackEditorModalTrack?.name ?? '',
-        sessions: action.payload.trackEditorModalTrack?.sessions ?? []
+        description: '',
+        records: []
       };      
       state.showTrackEditorModal = action.payload.showTrackEditorModal;      
       return state;
     },
-
-    setRecordModal: (state, action: PayloadAction<SessionEditorModalState>) => {
-      state.sessionEditorOpen = action.payload.sessionEditorOpen;      
-      
-      const track = action.payload.sessionEditorTrack
-
-      state.sessionEditorTrack = { id: track.id, name: track.name, sessions: [] }
-
-      if( !action.payload.sessionEditorSession ) {
-        state.sessionEditorSession = { id: null, time: Date.now(), records: [], tracks_id: track.id, };
-        state.sessionEditorTrack.sessions = [...track.sessions, state.sessionEditorSession ];
-      } else {
-        state.sessionEditorTrack.sessions = [...track.sessions ];
-
-        state.sessionEditorSession = {
-          id: action.payload.sessionEditorSession.id,
-          time: action.payload.sessionEditorSession.time,
-          tracks_id: track.id,
-          records: action.payload.sessionEditorSession.records.map( record => ({ ...record }))
-        }
-      }
-
-      return state;
-    },
-
-    sessionEditorRecordValidity: (state, action:PayloadAction<RecordValidity[]>) => {    
-      state.sessionEditorRecordValidity = action.payload.map((validity) => ({ 
-        isValid: validity.isValid, 
-        record: { ...validity.record }
-      }));
-
-      return state;
-    },
-
-    moveDriverToSessionEditor: (state) => {      
-      const session = state.sessionEditorSession;
-
-      session?.records.push({
-        id: null,
-        time: 0, 
-        sessions_id: session?.id,
-        drivers_id: state.sessionEditorDriverEditFieldDriver?.id
-      });
-      
-      state.sessionEditorDriverEditFieldDriver = null;      
-      return state;
-    },
-
-    showRecordModal: (state, action: PayloadAction<boolean>) => {      
-      state.sessionEditorOpen = action.payload;
-      return state;
-    },
-
-    setSessionEditorSession: (state, action:PayloadAction<Session>) => {         
-      state.sessionEditorSession = action.payload;  
-      if( state.sessionEditorTrack ) {
-        state.sessionEditorTrack.sessions = state.sessionEditorTrack.sessions.map( session => {
-          return session.id === action.payload.id ? action.payload : session;                  
-        });
-      }
-      return state;
-    },    
-
-    setDriverEditFieldDriver: (state, action:PayloadAction<Driver>) => {         
-      state.sessionEditorDriverEditFieldDriver = action.payload;          
-      return state;
-    },
-
-    showDriverEditField: (state, action:PayloadAction<boolean>) => {      
-      state.sessionEditorDriverEditField = action.payload;      
-      return state;
-    }
   },
 
   extraReducers(builder) {  
+    
+    
     builder
-      .addCase(fetchTracksAndDrivers.pending, (state, action) => {
+      .addCase(fetchTracksDriversCars.pending, (state, action) => {
         state.status = 'loading';
       })
-      .addCase(fetchTracksAndDrivers.fulfilled, (state, action) => {
+      .addCase(fetchTracksDriversCars.fulfilled, (state, action) => {
         state.status = 'succeeded';        
-        const [drivers, tracks] = action.payload;
+        const [drivers, tracks, cars] = action.payload;
         state.drivers = drivers;
         state.tracks = tracks;
-        state.track_id = state.track_id ?? tracks[0].id;
+        state.cars = cars;
+        state.track_id = state.track_id ? state.track_id : state.tracks[0].id ?? undefined;
+        return state;
       })
-      .addCase(fetchTracksAndDrivers.rejected, (state, action) => {
+      .addCase(fetchTracksDriversCars.rejected, (state, action) => {
         state.status = 'failed';        
+        return state;
       })
 
       .addCase(updateTrackDrivers.pending, (state, action) => {
         state.status = 'loading';
+        return state;
       })
       .addCase(updateTrackDrivers.fulfilled, (state, action) => {
         state.status = 'succeeded';        
@@ -253,39 +144,14 @@ export const editorSlice = createSlice({
             return { ...track, ...updateTrackDrivers };
           }
           return track;
-        });              
+        });           
+        
+        return state;
       })
       .addCase(updateTrackDrivers.rejected, (state, action) => {
         state.status = 'failed';  
         return state;      
       })
-      .addCase(updateSession.pending, (state, action) => {
-        state.status = 'loading';
-        return state;
-      })
-      .addCase(updateSession.fulfilled, (state, action) => {
-        state.status = 'succeeded';        
-        const tracks = action.payload;        
-        state.tracks = tracks;        
-        return state;
-      })
-      .addCase(updateSession.rejected, (state, action) => {
-        state.status = 'failed';        
-        return state;
-      })
-      .addCase(deleteSession.pending, (state, action) => {
-        state.status = 'loading'; 
-        return state;
-      })
-      .addCase(deleteSession.fulfilled, (state) => {
-        state.status = 'succeeded';            
-        return state;
-      })
-      .addCase(deleteSession.rejected, (state, action) => {
-        state.status = 'failed';        
-        return state;
-      })
-
       .addCase(addTrack.pending, (state) => {
         state.status = 'loading'; 
         return state;
@@ -305,7 +171,7 @@ export const editorSlice = createSlice({
         state.status = 'loading';        
         return state;
       })
-      .addCase(updateTrack.fulfilled, (state, action) => {
+      .addCase(updateTrack.fulfilled, (state, action) => { 
         state.status = 'succeeded';
         state.track_id = action.payload.id;         
         state.showTrackEditorModal = false;        
@@ -315,19 +181,13 @@ export const editorSlice = createSlice({
         state.status = 'failed';        
         return state;
       });
+      
   }  
 });
 
 export const { 
   changeTrack, 
-  showRecordModal,
-  setRecordModal,
-  showDriverEditField,
-  setDriverEditFieldDriver,
-  moveDriverToSessionEditor,
-  setSessionEditorSession,
-  sessionEditorRecordValidity,
   setTrackEditorModal
-} = editorSlice.actions;
+} = editorSlice.actions; 
 
 export default editorSlice.reducer;
