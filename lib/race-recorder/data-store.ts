@@ -8,7 +8,7 @@ import { Track, Record, Car, Driver } from './types';
  * @param error 
  */
 function logErrors( error:any ) {
-  console.log( error.message, error.stack );
+  console.log( "XD", error.message, error.stack );
 }
 
 // --- Data reading queries --
@@ -20,6 +20,12 @@ export async function getCars():Promise<Car[]> {
 
 export async function getCar(id:number):Promise<Car|null> {
   const sql = `select * from cars WHERE id = $1 AND deleted = false;`;
+  const result = await connection.query(sql, [id]);  
+  return result.rows.length > 0 ? result.rows[0] : null;
+}
+
+export async function getRecord(id:number):Promise<Record|null> {
+  const sql = `select * from records WHERE id = $1 AND deleted = false;`;
   const result = await connection.query(sql, [id]);  
   return result.rows.length > 0 ? result.rows[0] : null;
 }
@@ -63,6 +69,65 @@ export async function getRecords() {
 }
 
 // --- INSERT & UPDATED queries --
+
+export async function createRecord(record:Record):Promise<Record> {
+  const client = await connection.connect();
+
+  try {
+    await client.query('BEGIN');
+    const result = await client.query('INSERT INTO records(time, drivers_id, cars_id, tracks_id) VALUES($1, $2, $3, $4) RETURNING id;', 
+                                      [record.time, record.drivers_id, record.cars_id, record.tracks_id])
+    record.id = result.rows[0].id;      
+    await client.query('COMMIT');    
+  } catch( error ) {    
+    logErrors(error);
+    await client.query('ROLLBACK');
+    throw error;
+  } finally {
+    client.release();
+  }
+
+  return record;
+}
+
+export async function updateRecord(record:Record):Promise<Record>  {
+  const client = await connection.connect(); 
+
+  try {
+    await client.query('BEGIN');
+    await client.query('UPDATE records SET time=$1, drivers_id=$2 cars_id=$3, tracks_id=$4 WHERE id = $5 AND deleted = false;', 
+                       [record.time, record.drivers_id, record.cars_id, record.tracks_id, record.id])
+    await client.query('COMMIT');    
+  } catch( error ) {    
+    logErrors(error);
+    await client.query('ROLLBACK');
+    throw error;
+  } finally {
+    client.release();
+  }  
+
+  return record;
+}
+
+export async function deleteRecord(record:Record):Promise<Record>  {
+  const client = await connection.connect(); 
+
+  try {
+    await client.query('BEGIN');
+    await client.query('UPDATE records SET deleted=true WHERE id = $1 AND deleted = false;', [record.id])
+    await client.query('COMMIT');    
+  } catch( error ) {    
+    logErrors(error);
+    await client.query('ROLLBACK');
+    throw error;
+  } finally {
+    client.release();
+  }  
+
+  return record;
+}
+
+
 
 export async function createCar(car:Car):Promise<Car> {
   const client = await connection.connect();

@@ -20,7 +20,11 @@ export type RecordEditorState = {
   drivers: Driver[],
   cars: Car[],
 
-  status: string
+  status: string,
+
+  time?: string,
+  driver_id?: number,  
+  car_id?: number,
   
 } & TrackEditorModalState;
 
@@ -62,6 +66,15 @@ export const fetchTracks = createAsyncThunk(
   }
 );
 
+export const addRecord = createAsyncThunk(
+  'race-recorder/addRecod',
+  async (payload:Record,tuckApi) => {
+    const respone = await api.createRecord(payload);
+    tuckApi.dispatch(fetchTracksDriversCars())           
+    return respone;
+  }
+)
+
 export const addTrack = createAsyncThunk(
   'race-recorder/addTrack',
   async (payload:Track,tuckApi) => {
@@ -98,6 +111,8 @@ export const editorSlice = createSlice({
       return state;
     },
 
+
+
     setTrackEditorModal: (state, action: PayloadAction<TrackEditorModalState>) => {      
       state.trackEditorModalTrack = { 
         id: action.payload.trackEditorModalTrack?.id ?? null,
@@ -108,6 +123,16 @@ export const editorSlice = createSlice({
       state.showTrackEditorModal = action.payload.showTrackEditorModal;      
       return state;
     },
+
+    setDriverId: (state, action: PayloadAction<number>) => {      
+      state.driver_id = action.payload;
+      return state;
+    },
+
+    setCarId: (state, action: PayloadAction<number>) => {      
+      state.car_id = action.payload;
+      return state;
+    }      
   },
 
   extraReducers(builder) {  
@@ -180,6 +205,22 @@ export const editorSlice = createSlice({
       .addCase(updateTrack.rejected, (state) => {
         state.status = 'failed';        
         return state;
+      })
+
+      .addCase(addRecord.pending, (state) => {
+        state.status = 'loading';        
+        return state;
+      })
+      .addCase(addRecord.fulfilled, (state, action) => { 
+        state.status = 'succeeded';
+        state.time = undefined;
+        state.driver_id = undefined;
+        state.car_id = undefined;
+        return state;
+      })
+      .addCase(addRecord.rejected, (state) => {
+        state.status = 'failed';        
+        return state;
       });
       
   }  
@@ -187,7 +228,9 @@ export const editorSlice = createSlice({
 
 export const { 
   changeTrack, 
-  setTrackEditorModal
+  setTrackEditorModal,
+  setDriverId,
+  setCarId
 } = editorSlice.actions; 
 
 export default editorSlice.reducer;

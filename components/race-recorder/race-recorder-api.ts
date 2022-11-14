@@ -1,4 +1,4 @@
-import {Track, Driver, Car} from '../../lib/race-recorder/types';
+import {Track, Driver, Car, Record} from '../../lib/race-recorder/types';
 
 export async function getDrivers():Promise<Driver[]> {
   const response = await fetch('/api/drivers', {          
@@ -29,6 +29,18 @@ export async function getCars():Promise<Car[]> {
   const responseData = await response.json();
   return responseData.data;
 }
+
+export async function createRecord(record:Record):Promise<Record> {
+  const response = await fetch('/api/record', {          
+    headers: { 'Content-Type': 'application/json' },      
+    method: 'POST',
+    body: JSON.stringify(record)
+  }); 
+
+  const responseData = await response.json();
+  return responseData.data;
+}
+
 
 export async function updateTrackDrivers( updatedTrack: Track ):Promise<Track> {
 

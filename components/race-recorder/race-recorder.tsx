@@ -1,8 +1,11 @@
 import React, { useEffect } from 'react';
 
 import { 
+  addRecord,
   changeTrack, 
   fetchTracksDriversCars as fetchTracksDriversCars,   
+  setCarId,   
+  setDriverId,   
   setTrackEditorModal
 } from './editor-slice'
 
@@ -53,8 +56,21 @@ export default function RaceRecorder() {
     dispatch(changeTrack(parseInt(target.value)));
   }
 
-  function onClickAddRecord(event:React.MouseEvent) {    
+  function onCarChanges(event:React.ChangeEvent) {
+    const target = event.target as HTMLSelectElement;
+    dispatch(setCarId(parseInt(target.value)));    
+  }
 
+  function onClickAddRecord(event:React.MouseEvent) {    
+    const secondPars = new SecondParts( state.time );
+
+    dispatch(addRecord({
+      id: null,
+      time: secondPars.rawvalue,
+      cars_id: state.car_id,
+      drivers_id: state.driver_id,
+      tracks_id: state.track_id
+    }));
   }
 
   function onTableClick(event:React.MouseEvent) {
@@ -75,8 +91,12 @@ export default function RaceRecorder() {
     })); 
   }
 
+  function onDriverChanges(event:React.ChangeEvent) {
+    const selectElement = event.target as HTMLSelectElement;
+    dispatch(setDriverId( parseInt(selectElement.value) ));
+    
+  }
   
-
   return (
     <section className="race-recorder container">
             
@@ -118,8 +138,37 @@ export default function RaceRecorder() {
         </div>
 
         {session && (
-        <div className='col-12 d-flex justify-content-end'>
-          <button className='btn btn-primary' onClick={onClickAddRecord}>Lisää sessio</button>
+        <div className='col-12 d-flex justify-content-start'>
+          <div className='form-group'>
+            <label htmlFor="time">Aika</label>
+            <input id="time" type="text" className='form-control' value={state.time}></input>
+          </div>
+
+          <div className='form-group ms-3'>
+            <label htmlFor="driver">Pelaaja</label>
+            <select id="driver" className='form-control' onChange={onDriverChanges}>
+              <option value="">Ei valintaa</option>
+              {state.drivers.map( driver => {
+                return <option value={driver.id ?? undefined} key={driver.id}>{driver.name}</option>
+              })}
+            </select>
+          </div>
+
+          <div className='form-group ms-3'>
+            <label htmlFor="car">Ajoneuvo</label>
+            
+            <select id="car" 
+                    onChange={onCarChanges}
+                    className='form-control' 
+                    disabled={!state.cars.some( car => car.drivers_id === state.driver_id )}>
+              {state.cars.filter( car => car.drivers_id === state.driver_id ). map( car => {
+                return <option value={car.id ?? undefined} key={car.id}>{car.name}</option>
+              })}
+            </select>
+          </div>    
+          <div className='form-group ms-3 d-flex align-items-end'>            
+            <button type="button" className='btn btn-primary' disabled={!state.cars.some( car => car.drivers_id === state.driver_id )} onClick={onClickAddRecord}>Lisää</button>
+          </div>
         </div>
         )}
 

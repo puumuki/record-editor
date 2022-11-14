@@ -36,13 +36,13 @@
         "time": {
           "type": "number"
         },
-        "drivers_id": {
+        "cars_id": {
           "type": [
             "number",
             "null"
           ]
         },
-        "sessions_id": {
+        "drivers_id": {
           "type": [
             "number",
             "null"
@@ -75,12 +75,18 @@
         },
         "description": {
           "type": "string"
+        },
+        "records": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Record"
+          }
         }
       },
       "required": [
         "id",
         "name",
-        "description"
+        "records"
       ],
       "additionalProperties": false
     },

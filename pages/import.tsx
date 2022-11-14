@@ -5,6 +5,22 @@ import yaml, { YAMLException } from 'js-yaml';
 import { Track, Driver, Record } from '../lib/race-recorder/types';
 import SecondParts from '../lib/second-parts';
 
+const exampleYamlFile = [`Riverside rally - A rwd:`,
+                          `  - record:  `,
+                          `      time: "3:57.979" `,
+                          `      driver: Tatu `,
+                          `      car: ford coupe 4p`,
+                          `  - record:`,
+                          `      time: "3:59.163" `,
+                          `      driver: Teemu `,
+                          `      car: Ford escort`,
+                          `  - record: `,
+                          `      time: "4:07.966" `,
+                          `      driver: Toni `,
+                          `      car: mb sls amg poliisiauto`].join("\n")
+
+                                                    
+
 type ImportRecord = {
   time: number,
   driver: number,
@@ -173,15 +189,21 @@ export default function ImportData() {
       <Header></Header>
 
       <main className='container'>
+        
+        <h1>Datan sisääntuonti</h1>
 
+        <h2>Yaml</h2>
         <textarea className="form-control" 
                   id="yaml" 
                   value={state.yamlTextAreaContent} 
+                  placeholder={exampleYamlFile}
                   onChange={onYamlTextAreaChanges} rows={10}></textarea>
 
+        <div className='text-end mt-3 mb-3'>
         <button type="button" className="btn btn-primary" onClick={onLoadData}>Convert to SQL</button>          
+        </div>
 
-
+        <h2>SQL</h2>
         <textarea className="form-control" 
                   id="sql" 
                   value={state.sqlTextAreaContent} 
