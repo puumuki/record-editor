@@ -2,7 +2,7 @@
 
 import type { NextApiRequest, NextApiResponse } from "next";
 import {getRecords, getTracks} from '../../lib/race-recorder/data-store'
-import { Record } from "../../lib/race-recorder/types";
+import { Record } from "../../types/types";
 
 export default async function handler(request:NextApiRequest, response:NextApiResponse) {
   

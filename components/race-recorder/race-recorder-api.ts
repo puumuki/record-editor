@@ -1,4 +1,4 @@
-import {Track, Driver, Car, Record} from '../../lib/race-recorder/types';
+import {Track, Driver, Car, Record} from '../../types/types';
 
 export async function getDrivers():Promise<Driver[]> {
   const response = await fetch('/api/drivers', {          

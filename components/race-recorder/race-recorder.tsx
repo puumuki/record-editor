@@ -19,7 +19,7 @@ import {
 
 import TrackEditorModel from './track-editor-modal';
 import { useSession } from 'next-auth/react';
-import { Car, Driver, Record, Track } from '../../lib/race-recorder/types';
+import { Car, Driver, Record, Track } from '../../types/types';
 import { useAppDispatch, useAppSelector } from './hooks';
 import SecondParts from '../../lib/second-parts';
 import ConfirmModal from '../confirm-modal';

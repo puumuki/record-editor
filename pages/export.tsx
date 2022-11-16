@@ -1,7 +1,7 @@
 import Head from "next/head";
 import Header from "../components/Header";
 import {getCars, getTracks, getDrivers, getRecords, getCar} from "../lib/race-recorder/data-store";
-import { Driver, Record, Track } from "../lib/race-recorder/types";
+import { Driver, Record, Track } from "../types/types";
 
 type ExportPageProps = {
   title: string,

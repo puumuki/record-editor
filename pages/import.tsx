@@ -2,7 +2,7 @@ import Head from 'next/head';
 import Header from '../components/Header';
 import React, { useState } from 'react';
 import yaml, { YAMLException } from 'js-yaml';
-import { Track, Driver, Record } from '../lib/race-recorder/types';
+import { Track, Driver, Record } from '../types/types';
 import SecondParts from '../lib/second-parts';
 
 const exampleYamlFile = [`Riverside rally - A rwd:`,

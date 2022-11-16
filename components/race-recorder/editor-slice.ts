@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk, PayloadAction   } from '@reduxjs/toolkit'
 import * as api from './race-recorder-api';
-import {Track, Driver, Record, Car} from '../../lib/race-recorder/types';
+import {Track, Driver, Record, Car} from '../../types/types';
 import _ from 'lodash';
 import {HistoryState, readHistoryState, pushHistoryState} from './history';
 

@@ -1,5 +1,5 @@
 import React from "react";
-import { Track } from "../../lib/race-recorder/types";
+import { Track } from "../../types/types";
 import TextField from "../text-field";
 import { setTrackEditorModal, addTrack, updateTrack } from "./editor-slice";
 import { useAppDispatch } from "./hooks";

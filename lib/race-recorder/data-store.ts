@@ -1,7 +1,7 @@
 import {Query} from 'pg';
 
 import connection from '../../lib/race-recorder/postgresql-connection';
-import { Track, Record, Car, Driver } from './types';
+import { Track, Record, Car, Driver } from '../../types/types';
 
 /**
  * Log error message to console
