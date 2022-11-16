@@ -2,6 +2,7 @@ import { createSlice, createAsyncThunk, PayloadAction   } from '@reduxjs/toolkit
 import * as api from './race-recorder-api';
 import {Track, Driver, Record, Car} from '../../lib/race-recorder/types';
 import _ from 'lodash';
+import {HistoryState, readHistoryState, pushHistoryState} from './history';
 
 export interface RecordValidity {
   isValid?: boolean|null,
@@ -22,10 +23,19 @@ export type RecordEditorState = {
 
   status: string,
 
-  time?: string,
+  time: string,
   driver_id?: number,  
   car_id?: number,
   
+  showConfirmDialog: boolean,
+
+  //Targeted record's id number
+  record_id?: number;
+
+  modify_record_id?: number;
+
+  historyState: HistoryState,
+
 } & TrackEditorModalState;
 
 const initialState:RecordEditorState = {
@@ -37,8 +47,16 @@ const initialState:RecordEditorState = {
 
   showTrackEditorModal: false,
   trackEditorModalTrack: null,
+  showConfirmDialog: false,
 
-  status: ''
+  time: '',
+  status: '', 
+
+  record_id: undefined,
+
+  modify_record_id: undefined,
+
+  historyState:  {} 
 };
 
 export const fetchTracksDriversCars = createAsyncThunk(
@@ -66,10 +84,28 @@ export const fetchTracks = createAsyncThunk(
   }
 );
 
-export const addRecord = createAsyncThunk(
-  'race-recorder/addRecod',
+export const createRecord = createAsyncThunk(
+  'race-recorder/createRecord',
   async (payload:Record,tuckApi) => {
     const respone = await api.createRecord(payload);
+    tuckApi.dispatch(fetchTracksDriversCars())           
+    return respone;
+  }
+)
+
+export const updateRecord = createAsyncThunk(
+  'race-recorder/updateRecord',
+  async (payload:Record,tuckApi) => {
+    const respone = await api.updateRecord(payload);
+    tuckApi.dispatch(fetchTracksDriversCars())           
+    return respone;
+  }
+)
+
+export const deleteRecord = createAsyncThunk(
+  'race-recorder/deleteRecord',
+  async (payload:Record,tuckApi) => {
+    const respone = await api.deleteRecord(payload);
     tuckApi.dispatch(fetchTracksDriversCars())           
     return respone;
   }
@@ -106,12 +142,28 @@ export const editorSlice = createSlice({
 
   // The `reducers` field lets us define reducers and generate associated actions
   reducers: {
-    changeTrack: (state, action: PayloadAction<number>) => {      
-      state.track_id = action.payload;      
-      return state;
+
+    updateStateFromHistory: (state, action: PayloadAction<HistoryState>) => {
+      state.track_id = action.payload.track_id;
+      state.modify_record_id = action.payload.modify_record_id;
+      state.time = action.payload.time ?? '';
+      state.car_id = action.payload.cars_id;
+      state.driver_id = action.payload.drivers_id;  
     },
 
+    updateHistoryState: (state, action: PayloadAction<HistoryState>) => {
+      pushHistoryState(action.payload);
+      state.historyState = {
+        ...action.payload
+      }        
+      return state;     
+    },
 
+    changeTrack: (state, action: PayloadAction<number>) => {      
+      state.track_id = action.payload; 
+      state.modify_record_id = undefined;  
+      return state;
+    },
 
     setTrackEditorModal: (state, action: PayloadAction<TrackEditorModalState>) => {      
       state.trackEditorModalTrack = { 
@@ -132,7 +184,27 @@ export const editorSlice = createSlice({
     setCarId: (state, action: PayloadAction<number>) => {      
       state.car_id = action.payload;
       return state;
-    }      
+    },
+
+    setTime: (state, action: PayloadAction<string>) => {
+      state.time = action.payload;
+      return state;
+    },
+    
+    setRecordId: (state, action: PayloadAction<number>) => {
+      state.record_id = action.payload;
+      return state;
+    },
+
+    setModifyRecordId: (state, action: PayloadAction<number>) => {
+      state.modify_record_id = action.payload;
+      return state;
+    },    
+
+    setShowConfirmDialog(state, action: PayloadAction<boolean>) {
+      state.showConfirmDialog = action.payload;    
+      return state;
+    },
   },
 
   extraReducers(builder) {  
@@ -199,7 +271,7 @@ export const editorSlice = createSlice({
       .addCase(updateTrack.fulfilled, (state, action) => { 
         state.status = 'succeeded';
         state.track_id = action.payload.id ?? undefined;         
-        state.showTrackEditorModal = false;        
+        state.showTrackEditorModal = false;                
         return state;
       })
       .addCase(updateTrack.rejected, (state) => {
@@ -207,22 +279,59 @@ export const editorSlice = createSlice({
         return state;
       })
 
-      .addCase(addRecord.pending, (state) => {
+      .addCase(createRecord.pending, (state) => {
         state.status = 'loading';        
         return state;
       })
-      .addCase(addRecord.fulfilled, (state, action) => { 
+      .addCase(createRecord.fulfilled, (state, action) => { 
         state.status = 'succeeded';
-        state.time = undefined;
+        state.time = '';
         state.driver_id = undefined;
         state.car_id = undefined;
+        state.record_id = undefined;
+        state.modify_record_id = undefined;
         return state;
       })
-      .addCase(addRecord.rejected, (state) => {
+      .addCase(createRecord.rejected, (state) => {
         state.status = 'failed';        
         return state;
-      });
+      })
+
+      .addCase(deleteRecord.pending, (state, action) => {
+        state.status = 'pending';
+        return state;
+      })
+
+      .addCase(deleteRecord.fulfilled, (state, action) => {
+        state.status = 'succeeded';
+        state.record_id = undefined;
+        return state;
+      })
+
+      .addCase(deleteRecord.rejected, (state, action) => {        
+        state.status = 'failed';
+        return state;
+      })
       
+      .addCase(updateRecord.pending, (state, action) => {
+        state.status = 'pending';
+        return state;
+      })
+
+      .addCase(updateRecord.fulfilled, (state, action) => {
+        state.status = 'succeeded';
+        state.time = '';
+        state.driver_id = undefined;
+        state.car_id = undefined;
+        state.record_id = undefined;
+        state.modify_record_id = undefined;
+        return state;
+      })
+
+      .addCase(updateRecord.rejected, (state, action) => {        
+        state.status = 'failed';
+        return state;
+      });                  
   }  
 });
 
@@ -230,7 +339,13 @@ export const {
   changeTrack, 
   setTrackEditorModal,
   setDriverId,
-  setCarId
+  setCarId,
+  setTime,
+  setShowConfirmDialog,
+  setRecordId,
+  setModifyRecordId,
+  updateHistoryState,
+  updateStateFromHistory
 } = editorSlice.actions; 
 
 export default editorSlice.reducer;

@@ -22,25 +22,25 @@ export default async function handler(request:NextApiRequest, response:NextApiRe
   if( request.query.params === undefined ) {
 
     if(request.method === 'DELETE' || request.method === 'PUT') {
-      const carData = getRecord(data.id);
+      const recordData = getRecord(data.id);
       
-      if( !carData ) {
-        return response.json({ status: 404, data: null, message: `Car not found from database with the given id ${data.id}`});
+      if( !recordData ) {
+        return response.json({ status: 404, data: null, message: `record not found from database with the given id ${data.id}`});
       }
     }
 
     if( request.method === 'GET') {
-      const car = await getRecord(data.id);
-      if( car ) {
-        return response.json({ status: 200, data: car, message: `Found a car: car.id = ${car?.id}` });      
+      const record = await getRecord(data.id);
+      if( record ) {
+        return response.json({ status: 200, data: record, message: `Found a record: record.id = ${record?.id}` });      
       } else {
-        return response.json({ status: 404, data: null, message: `Car not found with given id: car.id = ${data?.id}` });      
+        return response.json({ status: 404, data: null, message: `Record not found with given id: record.id = ${data?.id}` });      
       }      
     }
 
     if( request.method === 'DELETE') {
-      const car = await deleteRecord(data);
-      return response.json({ status: 200, data: car, message: `deleted car: car.id = ${car.id}` });         
+      const record = await deleteRecord(data);
+      return response.json({ status: 200, data: record, message: `Deleted record: record.id = ${record.id}` });         
     }    
 
     const isValid = validator({ ...data });
@@ -48,12 +48,12 @@ export default async function handler(request:NextApiRequest, response:NextApiRe
     if( isValid ) {
       if( request.method === 'POST') {            
         const record = await createRecord(data);
-        return response.json({ status: 200, data: record, message: `Created car: car.id = ${record.id}` });      
+        return response.json({ status: 200, data: record, message: `Created record: record.id = ${record.id}` });      
       }
   
       if( request.method === 'PUT') {
         const record = await updateRecord(data);
-        return response.json({ status: 200, data: record, message: `Updated car: car.id = ${record.id}` });               
+        return response.json({ status: 200, data: record, message: `Updated record: record.id = ${record.id}` });               
       }
     } else {
       return response.json({

@@ -95,7 +95,7 @@ export async function updateRecord(record:Record):Promise<Record>  {
 
   try {
     await client.query('BEGIN');
-    await client.query('UPDATE records SET time=$1, drivers_id=$2 cars_id=$3, tracks_id=$4 WHERE id = $5 AND deleted = false;', 
+    await client.query('UPDATE records SET time=$1, drivers_id=$2, cars_id=$3, tracks_id=$4 WHERE id = $5 AND deleted = false;', 
                        [record.time, record.drivers_id, record.cars_id, record.tracks_id, record.id])
     await client.query('COMMIT');    
   } catch( error ) {    

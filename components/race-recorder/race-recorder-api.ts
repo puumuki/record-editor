@@ -41,6 +41,29 @@ export async function createRecord(record:Record):Promise<Record> {
   return responseData.data;
 }
 
+export async function updateRecord(record:Record):Promise<Record> {
+  const response = await fetch('/api/record', {          
+    headers: { 'Content-Type': 'application/json' },      
+    method: 'PUT',
+    body: JSON.stringify(record)
+  }); 
+
+  const responseData = await response.json();
+  return responseData.data;
+}
+
+export async function deleteRecord(record:Record):Promise<Record> {
+  const response = await fetch('/api/record', {          
+    headers: { 'Content-Type': 'application/json' },      
+    method: 'DELETE',
+    body: JSON.stringify(record)
+  }); 
+
+  const responseData = await response.json();
+  return responseData.data;
+}
+
+
 
 export async function updateTrackDrivers( updatedTrack: Track ):Promise<Track> {
 

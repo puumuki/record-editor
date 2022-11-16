@@ -1,25 +1,45 @@
 import React, { useEffect } from 'react';
 
 import { 
-  addRecord,
+  createRecord,
   changeTrack, 
   fetchTracksDriversCars as fetchTracksDriversCars,   
   setCarId,   
   setDriverId,   
-  setTrackEditorModal
+  setTime,   
+  setTrackEditorModal,
+  deleteRecord,
+  setShowConfirmDialog,
+  setRecordId,
+  setModifyRecordId,
+  updateRecord,
+  updateHistoryState,
+  updateStateFromHistory
 } from './editor-slice'
 
 import TrackEditorModel from './track-editor-modal';
 import { useSession } from 'next-auth/react';
-import { Car, Driver, Track } from '../../lib/race-recorder/types';
+import { Car, Driver, Record, Track } from '../../lib/race-recorder/types';
 import { useAppDispatch, useAppSelector } from './hooks';
 import SecondParts from '../../lib/second-parts';
+import ConfirmModal from '../confirm-modal';
+import { batch } from 'react-redux';
+import Spinner from '../Spinner/Spinner';
+import { readHistoryState } from './history';
 
-function createColumns() {
-  return [{ text: 'Aika'}, {text: 'Kuski'}, {text: 'Auto'}];
+interface createRowTypes {
+  record_id?: number, 
+  track_id?:number, 
+  drivers:Driver[], 
+  tracks:Track[], 
+  cars: Car[],
+  modify_record_id?: number,
+  session:any
 }
 
-function createRecordRows({track_id, drivers, tracks, cars}:{ track_id?:number, drivers:Driver[], tracks:Track[], cars: Car[]}, sessionObject:any) {
+
+
+function createRecordRows({record_id, track_id, drivers, tracks, cars, modify_record_id, session}:createRowTypes) {
   
   const track = tracks.find( track => track.id === track_id );
 
@@ -30,12 +50,25 @@ function createRecordRows({track_id, drivers, tracks, cars}:{ track_id?:number, 
   return track.records.slice().sort((recordA, recorB) => {
     return recordA.time - recorB.time;
   }).map( (record, index) => {
+
+    let rowStyleClass = record_id && record_id === record.id ? 'animate__animated animate__bounce' : '';
+    rowStyleClass += modify_record_id === record.id ? ' beign-modified' : '';
+
     const driver = drivers.find( driver => driver.id === record.drivers_id );
     const car = cars.find( car => car.id === record.cars_id );
-    return <tr key={`tr-record-${index}`}>
+    return <tr key={`tr-record-${index}`} className={rowStyleClass}>
       <td>{new SecondParts(record.time).format}</td>
       <td>{driver?.name}</td>
       <td>{car?.name}</td>
+      {session && ( 
+        <td className={`text-end`}>
+          <button type="button" 
+                    data-record-id={record.id}
+                    className="btn btn-primary modify-record me-2" >Muokkaa</button>          
+          <button type="button" 
+                    data-record-id={record.id}
+                    className="btn btn-primary delete-record" >Poista</button>
+        </td>)}
     </tr>
   }) 
 }
@@ -48,33 +81,97 @@ export default function RaceRecorder() {
   const dispatch = useAppDispatch();
 
   useEffect(() => {
-    dispatch(fetchTracksDriversCars());    
+    dispatch(fetchTracksDriversCars());  
+    
+    //Window is not defined when server renders the component.. Next.js :3
+    if(typeof window !== 'undefined') {  
+      dispatch(updateStateFromHistory(readHistoryState()));      
+    }   
   }, [dispatch]);
 
   function onTrackChange(event:React.ChangeEvent) {  
     const target = event.target as HTMLSelectElement;
-    dispatch(changeTrack(parseInt(target.value)));
+    
+    batch(() => {
+      const trackId = parseInt(target.value)
+      dispatch(changeTrack(trackId));  
+      dispatch(updateHistoryState({
+        ...state.historyState,
+        track_id: trackId
+      }))
+    });    
   }
 
   function onCarChanges(event:React.ChangeEvent) {
     const target = event.target as HTMLSelectElement;
-    dispatch(setCarId(parseInt(target.value)));    
+ 
+    batch(() => {
+      const carId = parseInt(target.value)
+      dispatch(setCarId(carId));   
+      dispatch(updateHistoryState({
+        ...state.historyState,
+        cars_id: carId
+      }))
+    });    
   }
 
-  function onClickAddRecord(event:React.MouseEvent) {    
+  function onClickModifyRecord(event:React.MouseEvent) {   
+    
     const secondPars = new SecondParts( state.time );
 
-    dispatch(addRecord({
+    const record:Record = {
       id: null,
       time: secondPars.rawvalue,
       cars_id: state.car_id,
       drivers_id: state.driver_id,
       tracks_id: state.track_id
-    }));
+    }
+
+    batch(() => {
+      dispatch(updateHistoryState({...state, modify_record_id: undefined }))
+
+      if( state.modify_record_id ) {
+        dispatch(updateRecord({ ...record, id: state.modify_record_id }));
+      } else {        
+        dispatch(createRecord(record));
+      }
+    });
   }
 
   function onTableClick(event:React.MouseEvent) {
+    const target = event.target as HTMLButtonElement;       
+    if( target.dataset.recordId ) {
+      const recordId = parseInt(target.dataset.recordId);
+      const record = state.tracks.find(track => track.id === state.track_id)?.
+                            records.find( record => record.id === recordId);      
 
+      if( record && record.drivers_id) {
+        if( target.classList.contains('delete-record') ) {
+
+          dispatch(setRecordId(recordId));
+          dispatch(setShowConfirmDialog(true));      
+        }
+        
+        if( target.classList.contains('modify-record') ) {
+          const recordId = parseInt(target.dataset.recordId);
+          
+          batch(() => {            
+            const time = new SecondParts(record.time).toString();
+            dispatch(setModifyRecordId(recordId));
+            dispatch(setTime(time));
+            dispatch(setDriverId(record.drivers_id ?? 0));
+            dispatch(setCarId(record.cars_id ?? 0));            
+            dispatch(updateHistoryState({
+              ...state.historyState,
+              modify_record_id: recordId,               
+              time, 
+              drivers_id: record.drivers_id ?? undefined, 
+              cars_id: record.cars_id ?? undefined  
+            }));
+          });     
+        }  
+      }       
+    }     
   }
 
   function onClickEditTrack(event: React.MouseEvent) {    
@@ -91,12 +188,43 @@ export default function RaceRecorder() {
     })); 
   }
 
+  function onConfirmDelete() {
+    const record = state.tracks.find( track => track.id === state.track_id )?.
+                        records.find(record => record.id === state.record_id);
+
+    if( record ) {      
+      batch(() => {
+        dispatch(setShowConfirmDialog(false));
+        dispatch(deleteRecord(record));
+      });      
+    }
+  }
+
+  function onClose() {
+    dispatch(setShowConfirmDialog(false));    
+  }
+
+  function onTimeChanges(event:React.ChangeEvent) {
+    try {
+      const inputElement = event.target as HTMLInputElement;     
+      batch(() => {
+        dispatch(updateHistoryState({...state, time: inputElement.value}));
+        dispatch(setTime(inputElement.value));
+      });    
+    } catch( error ) {
+      console.log( error );
+    }
+  }
+
   function onDriverChanges(event:React.ChangeEvent) {
     const selectElement = event.target as HTMLSelectElement;
-    dispatch(setDriverId( parseInt(selectElement.value) ));
-    
+    batch(() => {
+      const driverId = parseInt(selectElement.value);
+      dispatch(updateHistoryState({...state, drivers_id: driverId }));
+      dispatch(setDriverId( driverId ));                
+    })    
   }
-  
+      
   return (
     <section className="race-recorder container">
             
@@ -104,77 +232,101 @@ export default function RaceRecorder() {
         <TrackEditorModel showTrackEditorModal={state.showTrackEditorModal}
                           trackEditorModalTrack={state.tracks.find( track => track.id === state.track_id)} />
       )}
+
+      { state.showConfirmDialog && (
+        <ConfirmModal title='Olet poistamassa aikaa.'
+                      text="Haluatko varmasti poistaa merkinnän?"
+                      confirmCallBack={onConfirmDelete} 
+                      onCloseCallBack={onClose} ></ConfirmModal>
+      )}
         
       <div className="row">
         <div className="col-3">
-          <select className="form-select" defaultValue={state.track_id} onChange={onTrackChange} aria-label="Valitse kenttä">
+        <label htmlFor="track-select">Rata</label>
+          <select id="track-select" className="form-select" value={state.track_id} onChange={onTrackChange} aria-label="Valitse kenttä">
            {state.tracks.map( track => {
               return <option key={track.id} value={track.id ? track.id : undefined}>{track.name}</option>
             })}
-          </select>      
-        </div>
+          </select>    
+          </div>
+
+          {session && (
+          <div className='col-9 d-flex justify-content-end'>
+            <div className='form-group'>
+              <label htmlFor="time">Aika</label>
+              <input id="time" type="text" className='form-control' value={state.time || ''} onChange={onTimeChanges}></input>
+            </div>
+
+            <div className='form-group ms-3'>
+              <label htmlFor="driver">Pelaaja</label>
+              <select id="driver" className='form-control' 
+                value={state.driver_id}
+                onChange={onDriverChanges}>
+                <option value="">Ei valintaa</option>
+                {state.drivers.map( driver => {
+                  return <option value={driver.id ?? undefined} key={driver.id}>{driver.name}</option>
+                })}
+              </select>
+            </div>
+
+            <div className='form-group ms-3'>
+              <label htmlFor="car">Ajoneuvo</label>
+              
+              <select id="car" 
+                      onChange={onCarChanges}
+                      value={state.car_id}
+                      className='form-control' 
+                      disabled={!state.cars.some( car => car.drivers_id === state.driver_id )}>
+                <option value="">Ei valintaa</option>                        
+                {state.cars.filter( car => car.drivers_id === state.driver_id ). map( car => {
+                  return <option value={car.id ?? undefined} key={car.id}>{car.name}</option>
+                })}
+              </select>
+            </div>    
+
+            <div className='form-group ms-3 d-flex align-items-end  me-2'>            
+              <button type="button" 
+                      className='btn btn-primary' 
+                      disabled={!(state.driver_id && state.car_id && SecondParts.validate(state.time))} 
+                      onClick={onClickModifyRecord}>{state.modify_record_id ? 'Muokkaa' : 'Lisää'}</button>
+            </div>
+          </div>        
+          )}
 
         <div className='col-12'>
 
           <table className='table' onClick={onTableClick}>
             <thead>
               <tr>
-                { createColumns().map( (column, index) => {
-                  return <th key={`th-${index}`}>{column.text}</th>
-                }) }                
+                <td>Aika</td>
+                <td>Kuski</td>
+                <td colSpan={2}>Auto</td>
               </tr>
             </thead>
 
             <tbody>              
               {createRecordRows({ 
+                record_id: state.record_id,
                 track_id: state.track_id, 
                 drivers: state.drivers, 
                 tracks: state.tracks,
-                cars: state.cars 
-              }, session)}              
+                cars: state.cars,
+                modify_record_id: state.modify_record_id,
+                session
+              })}              
             </tbody>
 
           </table>
         </div>
 
-        {session && (
-        <div className='col-12 d-flex justify-content-start'>
-          <div className='form-group'>
-            <label htmlFor="time">Aika</label>
-            <input id="time" type="text" className='form-control' value={state.time}></input>
-          </div>
-
-          <div className='form-group ms-3'>
-            <label htmlFor="driver">Pelaaja</label>
-            <select id="driver" className='form-control' onChange={onDriverChanges}>
-              <option value="">Ei valintaa</option>
-              {state.drivers.map( driver => {
-                return <option value={driver.id ?? undefined} key={driver.id}>{driver.name}</option>
-              })}
-            </select>
-          </div>
-
-          <div className='form-group ms-3'>
-            <label htmlFor="car">Ajoneuvo</label>
-            
-            <select id="car" 
-                    onChange={onCarChanges}
-                    className='form-control' 
-                    disabled={!state.cars.some( car => car.drivers_id === state.driver_id )}>
-              {state.cars.filter( car => car.drivers_id === state.driver_id ). map( car => {
-                return <option value={car.id ?? undefined} key={car.id}>{car.name}</option>
-              })}
-            </select>
-          </div>    
-          <div className='form-group ms-3 d-flex align-items-end'>            
-            <button type="button" className='btn btn-primary' disabled={!state.cars.some( car => car.drivers_id === state.driver_id )} onClick={onClickAddRecord}>Lisää</button>
-          </div>
-        </div>
-        )}
 
 
       </div>
-    
+
+      {state.status === 'loading' && (
+        <Spinner></Spinner>
+      )}
+  
     </section> 
   )
 
