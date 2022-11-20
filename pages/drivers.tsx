@@ -1,8 +1,8 @@
 import Head from 'next/head';
 import RaceRecorder from '../components/race-recorder/race-recorder';
-import store from '../components/race-recorder/store';
+import store from '../lib/store';
 import { Provider } from 'react-redux';
-import DriversEditor from '../components/race-recorder/drivers-editor';
+import DriversEditor from '../components/driver-editor/drivers-editor';
 import Header from '../components/Header';
 
 export default function RaceRecorderPage() {    

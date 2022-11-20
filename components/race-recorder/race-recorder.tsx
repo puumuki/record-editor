@@ -15,7 +15,7 @@ import {
   updateRecord,
   updateHistoryState,
   updateStateFromHistory
-} from './editor-slice'
+} from './race-recorder-slice'
 
 import TrackEditorModel from './track-editor-modal';
 import { useSession } from 'next-auth/react';
@@ -26,6 +26,7 @@ import ConfirmModal from '../confirm-modal';
 import { batch } from 'react-redux';
 import Spinner from '../Spinner/Spinner';
 import { readHistoryState } from './history';
+import { sortTrackAlphabetically } from '../../lib/helpers';
 
 interface createRowTypes {
   record_id?: number, 
@@ -77,7 +78,7 @@ export default function RaceRecorder() {
 
   const { data: session } = useSession();
   
-  const state = useAppSelector( (state) => state.editor );    
+  const state = useAppSelector( (state) => state.raceeditor );    
   const dispatch = useAppDispatch();
 
   useEffect(() => {
@@ -244,7 +245,7 @@ export default function RaceRecorder() {
         <div className="col-3">
         <label htmlFor="track-select">Rata</label>
           <select id="track-select" className="form-select" value={state.track_id} onChange={onTrackChange} aria-label="Valitse kenttä">
-           {state.tracks.map( track => {
+           {sortTrackAlphabetically(state.tracks).map( track => {
               return <option key={track.id} value={track.id ? track.id : undefined}>{track.name}</option>
             })}
           </select>    

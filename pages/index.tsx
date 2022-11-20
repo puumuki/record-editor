@@ -1,6 +1,6 @@
 import Head from 'next/head';
 import RaceRecorder from '../components/race-recorder/race-recorder';
-import store from '../components/race-recorder/store';
+import store from '../lib/store';
 import { Provider } from 'react-redux';
 import Header from '../components/Header';
 
