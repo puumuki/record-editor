@@ -8,18 +8,18 @@ import { Track, Record, Car, Driver } from '../../types/types';
  * @param error 
  */
 function logErrors( error:any ) {
-  console.log( "XD", error.message, error.stack );
+  console.log( "data-store.ts - error occurred", error.message, error.stack );
 }
 
 // --- Data reading queries --
 export async function getCars():Promise<Car[]> {
-  const sql = `select * from cars WHERE deleted = false;`;
+  const sql = `select id, name, scores, drivers_id from cars WHERE deleted = false;`;
   const result = await connection.query(sql);
   return result.rows;
 }
 
 export async function getCar(id:number):Promise<Car|null> {
-  const sql = `select * from cars WHERE id = $1 AND deleted = false;`;
+  const sql = `select id, name, scores, drivers_id from cars WHERE id = $1 AND deleted = false;`;
   const result = await connection.query(sql, [id]);  
   return result.rows.length > 0 ? result.rows[0] : null;
 }

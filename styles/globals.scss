@@ -1,0 +1,11 @@
+@import "bootsrap/bootstrap";
+@import "driver-editor"; 
+
+.modal.show {
+  display: block;
+}
+
+tr.beign-modified {
+  outline: 2px solid rgb(0, 0, 0);
+  background-color: #eee;
+}
