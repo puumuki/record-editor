@@ -8,7 +8,7 @@ export default function RaceRecorderPage() {
   return (
     <>
       <Head>
-        <title>Kilpailurekisteri</title>
+        <title>Kilpailurekisteri - Ajat</title>
       </Head>
 
       <Header></Header>
