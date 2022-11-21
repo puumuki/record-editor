@@ -4,14 +4,17 @@ import TextField from "../text-field";
 import { setTrackEditorModal, addTrack, updateTrack } from "./race-recorder-slice";
 import { useAppDispatch } from "./hooks";
 
-export interface TrackEditorModalProps {
+interface TrackEditorModalProps {
   showTrackEditorModal: boolean,
-  trackEditorModalTrack?: Track
+  trackEditorModalTrack: Track | null
 }
 
 export default function TrackEditorModel(props: TrackEditorModalProps) {
 
-  const {showTrackEditorModal, trackEditorModalTrack={ id: null, name: '', records: []}} = props;
+  const {showTrackEditorModal, trackEditorModalTrack} = props;
+
+  const track:Track = trackEditorModalTrack ?  trackEditorModalTrack 
+                                            : { id: null, name: '', description: '', records: [] };
 
   const dispatch = useAppDispatch();
 
@@ -23,13 +26,16 @@ export default function TrackEditorModel(props: TrackEditorModalProps) {
   }  
 
   function onSaveClicked() {   
-    if( trackEditorModalTrack.id ) {
+    if( trackEditorModalTrack?.id ) {
       dispatch(updateTrack({
-        ...trackEditorModalTrack,      
+        ...track,      
       }));
     } else {
       dispatch(addTrack({
-        ...trackEditorModalTrack,      
+        id: null,
+        name: track.name,
+        records: [],
+        description: ''   
       }));
     }
 
@@ -38,7 +44,10 @@ export default function TrackEditorModel(props: TrackEditorModalProps) {
   function onTrackNameChanges(event:React.ChangeEvent<HTMLInputElement>) {
     dispatch(setTrackEditorModal({
       showTrackEditorModal: true,
-      trackEditorModalTrack: { ...trackEditorModalTrack, name: event.target.value }
+      trackEditorModalTrack: { 
+        ...track, 
+        name: event.target.value 
+      }
     }));     
   }
 
@@ -64,7 +73,7 @@ export default function TrackEditorModel(props: TrackEditorModalProps) {
           </div>
 
           <div className="modal-body">
-            <TextField label="Radan nimi" id="track-name" name="track-name" value={trackEditorModalTrack?.name} onChange={onTrackNameChanges}></TextField>
+            <TextField label="Radan nimi" id="track-name" name="track-name" value={track.name} onChange={onTrackNameChanges}></TextField>
           </div>
 
 

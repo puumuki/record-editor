@@ -11,7 +11,7 @@ export interface RecordValidity {
 
 interface TrackEditorModalState {
   showTrackEditorModal?: boolean,
-  trackEditorModalTrack?: Track|null,
+  trackEditorModalTrack: Track|null,
 }
 
 export type RecordEditorState = {
@@ -176,12 +176,12 @@ export const editorSlice = createSlice({
       return state;
     },
 
-    setDriverId: (state, action: PayloadAction<number>) => {      
+    setDriverId: (state, action: PayloadAction<number|undefined>) => {      
       state.driver_id = action.payload;
       return state;
     },
 
-    setCarId: (state, action: PayloadAction<number>) => {      
+    setCarId: (state, action: PayloadAction<number|undefined>) => {      
       state.car_id = action.payload;
       return state;
     },
@@ -191,12 +191,12 @@ export const editorSlice = createSlice({
       return state;
     },
     
-    setRecordId: (state, action: PayloadAction<number>) => {
+    setRecordId: (state, action: PayloadAction<number|undefined>) => {
       state.record_id = action.payload;
       return state;
     },
 
-    setModifyRecordId: (state, action: PayloadAction<number>) => {
+    setModifyRecordId: (state, action: PayloadAction<number|undefined>) => {
       state.modify_record_id = action.payload;
       return state;
     },    

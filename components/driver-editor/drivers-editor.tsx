@@ -51,7 +51,7 @@ export default function DriversEditor() {
     return () => {    //Cleanup
       window.removeEventListener('click', onBodyClick);
     }
-  })
+  });
 
   function onDriverTabClicked(event:React.MouseEvent) {
     const target = event.target as HTMLLinkElement;    
@@ -228,7 +228,7 @@ export default function DriversEditor() {
 
         <div className='row'>
           <div className="col-6">
-            <strong>Ajoneuvot</strong>
+            <strong className='ps-2'>Ajoneuvot</strong>
           </div>        
 
           <div className="col-6 text-end">

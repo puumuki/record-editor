@@ -35,6 +35,7 @@ export function readHistoryState(): HistoryState {
  * @param state history state object
  */
 export function pushHistoryState( state: HistoryState ) {
+
   const url = new URL(window.location.href);
 
   Object.entries(state).forEach(([key, value]) => {
