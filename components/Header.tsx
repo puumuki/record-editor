@@ -17,7 +17,7 @@ export default function Header() {
 
     return (
       <header className="navigation">
-        <div className="container d-flex">
+        <div className="container d-flex flex-wrap">
           <Link href="/" className="logo"><Image src="/logo-v1.svg" alt="logo" height="40" width="150"></Image></Link>
           
           <div className="pages">

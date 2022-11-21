@@ -10,7 +10,12 @@ export const authOptions = {
   ],
   callbacks: {
     session({ session }: {session:Session}) {
-      return session // The return type will match the one returned in `useSession()`
+      
+      if( session.user.email === 'teemuki@gmail.com' ) {        
+        session.user.role = 'admin';
+      }
+
+      return session; // The return type will match the one returned in `useSession()`
     },
   }
 }

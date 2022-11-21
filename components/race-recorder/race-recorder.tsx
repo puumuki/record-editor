@@ -38,8 +38,6 @@ interface createRowTypes {
   session:any
 }
 
-
-
 function createRecordRows({record_id, track_id, drivers, tracks, cars, modify_record_id, session}:createRowTypes) {
   
   const track = tracks.find( track => track.id === track_id );
@@ -65,7 +63,7 @@ function createRecordRows({record_id, track_id, drivers, tracks, cars, modify_re
         <td className={`text-end`}>
           <button type="button" 
                     data-record-id={record.id}
-                    className="btn btn-primary modify-record me-2" >Muokkaa</button>          
+                    className="btn btn-primary modify-record me-sm-2 mb-2 mb-sm-0" >Muokkaa</button>          
           <button type="button" 
                     data-record-id={record.id}
                     className="btn btn-primary delete-record" >Poista</button>
@@ -80,6 +78,31 @@ export default function RaceRecorder() {
   
   const state = useAppSelector( (state) => state.raceeditor );    
   const dispatch = useAppDispatch();
+
+  //Clear car's id when a document is clicked outside of the table
+  useEffect(() => {
+
+    function onBodyClick(event:MouseEvent) {    
+      const target = event.target as Element;
+      
+      //Click outside table cell
+      if( !target.closest('.race-recorder ') ) {        
+        batch(() => {
+          dispatch(setTime(''));
+          dispatch(setRecordId(undefined));
+          dispatch(setModifyRecordId(undefined));
+          dispatch(setDriverId(undefined));
+        });
+      }    
+    }
+  
+    window.addEventListener( 'click', onBodyClick )
+
+    return () => {    //Cleanup
+      window.removeEventListener('click', onBodyClick);
+    }
+  });
+
 
   useEffect(() => {
     dispatch(fetchTracksDriversCars());  
@@ -129,7 +152,13 @@ export default function RaceRecorder() {
     }
 
     batch(() => {
-      dispatch(updateHistoryState({...state, modify_record_id: undefined }))
+      dispatch(updateHistoryState({
+        modify_record_id: undefined,
+        cars_id: undefined,
+        drivers_id: undefined,
+        time: undefined,
+        track_id: undefined 
+      }))
 
       if( state.modify_record_id ) {
         dispatch(updateRecord({ ...record, id: state.modify_record_id }));
@@ -175,20 +204,6 @@ export default function RaceRecorder() {
     }     
   }
 
-  function onClickEditTrack(event: React.MouseEvent) {    
-    dispatch(setTrackEditorModal({
-      showTrackEditorModal: true,
-      trackEditorModalTrack: state.tracks.find( track => track.id === state.track_id )
-    })); 
-  }
-
-  function onClickAddTrack(event:React.MouseEvent) {
-    dispatch(setTrackEditorModal({
-      showTrackEditorModal: true,
-      trackEditorModalTrack: { id: null, name: '', records: [] }
-    })); 
-  }
-
   function onConfirmDelete() {
     const record = state.tracks.find( track => track.id === state.track_id )?.
                         records.find(record => record.id === state.record_id);
@@ -200,6 +215,17 @@ export default function RaceRecorder() {
       });      
     }
   }
+
+  function updateTrack() {
+    const track = state.tracks.find( track => track.id === state.track_id );
+    if( track )  {
+      dispatch(setTrackEditorModal({ showTrackEditorModal: true, trackEditorModalTrack: track }));   
+    }    
+  }  
+
+  function createTrack() {    
+    dispatch(setTrackEditorModal({ showTrackEditorModal: true, trackEditorModalTrack: null }));   
+  }    
 
   function onClose() {
     dispatch(setShowConfirmDialog(false));    
@@ -231,7 +257,7 @@ export default function RaceRecorder() {
             
       { state.showTrackEditorModal && (
         <TrackEditorModel showTrackEditorModal={state.showTrackEditorModal}
-                          trackEditorModalTrack={state.tracks.find( track => track.id === state.track_id)} />
+                          trackEditorModalTrack={state.trackEditorModalTrack} />
       )}
 
       { state.showConfirmDialog && (
@@ -242,57 +268,67 @@ export default function RaceRecorder() {
       )}
         
       <div className="row">
-        <div className="col-3">
-        <label htmlFor="track-select">Rata</label>
+        <div className="col-lg-3 col-md-12">
+          <label htmlFor="track-select">Rata</label>
           <select id="track-select" className="form-select" value={state.track_id} onChange={onTrackChange} aria-label="Valitse kenttä">
            {sortTrackAlphabetically(state.tracks).map( track => {
               return <option key={track.id} value={track.id ? track.id : undefined}>{track.name}</option>
             })}
-          </select>    
+          </select>               
+        </div>
+
+        {session && (
+        <>
+        
+        <div className='col-lg-3 col-md-12 mt-3 mt-lg-0 d-flex align-items-end'>          
+          <button type='button' className='btn btn-primary' onClick={updateTrack}>Muokkaa rataa</button>
+          <button type='button' className='btn btn-primary ms-2' onClick={createTrack}>Lisää rata</button>        
+        </div>
+
+
+        <div className='col-md-12 col-lg-6 mt-3 mt-lg-0 d-flex justify-content-lg-end'>
+          <div className='form-group'>
+            <label htmlFor="time">Aika</label>
+            <input id="time" type="text" className='form-control' value={state.time || ''} onChange={onTimeChanges}></input>
           </div>
 
-          {session && (
-          <div className='col-9 d-flex justify-content-end'>
-            <div className='form-group'>
-              <label htmlFor="time">Aika</label>
-              <input id="time" type="text" className='form-control' value={state.time || ''} onChange={onTimeChanges}></input>
-            </div>
+          <div className='form-group ms-3'>
+            <label htmlFor="driver">Pelaaja</label>
+            <select id="driver" className='form-control' 
+              value={state.driver_id ? state.driver_id : ''}
+              onChange={onDriverChanges}>
+              <option value="">Ei valintaa</option>
+              {state.drivers.map( driver => {
+                return <option value={driver.id ?? undefined} key={driver.id}>{driver.name}</option>
+              })}
+            </select>
+          </div>
 
-            <div className='form-group ms-3'>
-              <label htmlFor="driver">Pelaaja</label>
-              <select id="driver" className='form-control' 
-                value={state.driver_id}
-                onChange={onDriverChanges}>
-                <option value="">Ei valintaa</option>
-                {state.drivers.map( driver => {
-                  return <option value={driver.id ?? undefined} key={driver.id}>{driver.name}</option>
-                })}
-              </select>
-            </div>
+          <div className='form-group ms-3'>
+            <label htmlFor="car">Ajoneuvo</label>
+            
+            <select id="car" 
+                    onChange={onCarChanges}
+                    value={state.car_id}
+                    className='form-control' 
+                    disabled={!state.cars.some( car => car.drivers_id === state.driver_id )}>
+              <option value="">Ei valintaa</option>                        
+              {state.cars.filter( car => car.drivers_id === state.driver_id ). map( car => {
+                return <option value={car.id ?? undefined} key={car.id}>{car.name}</option>
+              })}
+            </select>
+          </div>    
 
-            <div className='form-group ms-3'>
-              <label htmlFor="car">Ajoneuvo</label>
-              
-              <select id="car" 
-                      onChange={onCarChanges}
-                      value={state.car_id}
-                      className='form-control' 
-                      disabled={!state.cars.some( car => car.drivers_id === state.driver_id )}>
-                <option value="">Ei valintaa</option>                        
-                {state.cars.filter( car => car.drivers_id === state.driver_id ). map( car => {
-                  return <option value={car.id ?? undefined} key={car.id}>{car.name}</option>
-                })}
-              </select>
-            </div>    
+          <div className='form-group ms-3 d-flex align-items-end me-2'>            
+            <button type="button" 
+                    className='btn btn-primary' 
+                    disabled={!(state.driver_id && state.car_id && SecondParts.validate(state.time))} 
+                    onClick={onClickModifyRecord}>{state.modify_record_id ? 'Muokkaa' : 'Lisää'}</button>
+          </div>
+        </div>  
 
-            <div className='form-group ms-3 d-flex align-items-end  me-2'>            
-              <button type="button" 
-                      className='btn btn-primary' 
-                      disabled={!(state.driver_id && state.car_id && SecondParts.validate(state.time))} 
-                      onClick={onClickModifyRecord}>{state.modify_record_id ? 'Muokkaa' : 'Lisää'}</button>
-            </div>
-          </div>        
-          )}
+        </>      
+        )}
 
         <div className='col-12'>
 
