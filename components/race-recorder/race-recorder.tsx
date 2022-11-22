@@ -255,6 +255,14 @@ export default function RaceRecorder() {
   return (
     <section className="race-recorder container">
             
+      {state.drivers.length === 0 && (
+        <div className="alert alert-warning" role="alert">
+          <h4>Ongelma havaittu</h4>
+          Tietoja kuskeista ei ole tällä hetkellä saatavissa, onko yhteys tietokantaan poikki? Vai mistä kiikastaa. 
+        </div>
+      )}
+
+
       { state.showTrackEditorModal && (
         <TrackEditorModel showTrackEditorModal={state.showTrackEditorModal}
                           trackEditorModalTrack={state.trackEditorModalTrack} />

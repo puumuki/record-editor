@@ -180,6 +180,14 @@ export default function DriversEditor() {
   return <>    
     <section className="race-recorder container">
     
+    {state.drivers.length === 0 && (
+      <div className="alert alert-warning" role="alert">
+        <h4>Ongelma havaittu</h4>
+        Tietoja kuskeista ei ole tällä hetkellä saatavissa, onko yhteys tietokantaan poikki? Vai mistä kiikastaa. 
+      </div>
+    )}
+
+
     <ul className="nav nav-tabs mb-3">
     {state.drivers.map(driver => {
       return (        
