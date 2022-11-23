@@ -27,7 +27,7 @@ export default function Header() {
 
           <div className="signinout-buttons">
             {session && <button className="btn btn-primary" type="button" onClick={handleSignout}>Kirjaudu ulos</button>  } 
-            {!session && <button className="btn btn-primary"  type="button"onClick={handleSignin} >Kirjadu sisään</button>  } 
+            {!session && <button className="btn btn-primary"  type="button"onClick={handleSignin} >Kirjaudu sisään</button>  } 
           </div>
         </div>
       </header>

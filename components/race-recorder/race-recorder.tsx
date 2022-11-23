@@ -27,6 +27,7 @@ import { batch } from 'react-redux';
 import Spinner from '../Spinner/Spinner';
 import { readHistoryState } from './history';
 import { sortTrackAlphabetically } from '../../lib/helpers';
+import WarningMessage from '../Warning';
 
 interface createRowTypes {
   record_id?: number, 
@@ -256,10 +257,8 @@ export default function RaceRecorder() {
     <section className="race-recorder container">
             
       {state.drivers.length === 0 && (
-        <div className="alert alert-warning" role="alert">
-          <h4>Ongelma havaittu</h4>
-          Tietoja kuskeista ei ole tällä hetkellä saatavissa, onko yhteys tietokantaan poikki? Vai mistä kiikastaa. 
-        </div>
+        <WarningMessage title="Onglema havaittu" 
+                        message="Tietoja kuskeista ei ole tällä hetkellä saatavissa, onko yhteys tietokantaan poikki vai eikö tietokannasta löydy tietoa?" />
       )}
 
 

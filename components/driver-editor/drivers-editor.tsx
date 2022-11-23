@@ -11,6 +11,7 @@ import { useAppSelector } from '../../lib/store';
 import { Car } from '../../types/types';
 import HighlightedText from './highlightedtext';
 import { batch } from 'react-redux';
+import WarningMessage from '../Warning';
 //import styles from '../../styles/DriversEditor.module.scss';
 
 export default function DriversEditor() {
@@ -181,10 +182,8 @@ export default function DriversEditor() {
     <section className="race-recorder container">
     
     {state.drivers.length === 0 && (
-      <div className="alert alert-warning" role="alert">
-        <h4>Ongelma havaittu</h4>
-        Tietoja kuskeista ei ole tällä hetkellä saatavissa, onko yhteys tietokantaan poikki? Vai mistä kiikastaa. 
-      </div>
+        <WarningMessage title="Onglema havaittu" 
+                        message="Tietoja kuskeista ei ole tällä hetkellä saatavissa, onko yhteys tietokantaan poikki vai eikö tietokannasta löydy tietoa?" />      
     )}
 
 

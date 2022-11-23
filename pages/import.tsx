@@ -36,7 +36,8 @@ type ImportData = {
   tracks: ImportTrack[],
   cars: {
     [key: string]: Set<string>
-  }
+  },
+  drivers: Driver
 }
 
 type ImportCar = {
@@ -55,23 +56,30 @@ const initialState:ImportDataState = {
   sqlTextAreaContent: ''
 }
 
-const driversLookUp = {
-  'Teemu': 1,
-  'Toni': 2,
-  'Tatu': 3
-}  
+interface Driver {
+  [key: string]: number
+}
+
+interface DriverCars {
+  [key: string]: Set<string>
+}
+
+const driversLookUp:Driver =  {};
 
 function convertYamlToData(yamlDocument:any):ImportData {
   
+  const drivers = yamlDocument['Drivers'];
 
-    
-  const driverCars = {
-    'Teemu': new Set<string>(),
-    'Toni': new Set<string>(),
-    'Tatu': new Set<string>(),
-  }
+  const driverCars:DriverCars = {};
 
-  const tracks:ImportTrack[] = Object.keys( yamlDocument ).map( key => {
+  drivers.forEach( (driver:string, i:number) => {
+    driversLookUp[driver] = i + 1;
+    driverCars[ driver ] = new Set<string>()
+  });  
+
+  
+
+  const tracks:ImportTrack[] = Object.keys( yamlDocument ).filter( key => key.toLocaleLowerCase() !== 'drivers' ).map( key => {
     return {
       name: key,
       records: yamlDocument[key].map( (recordObject:any) => {
@@ -85,6 +93,7 @@ function convertYamlToData(yamlDocument:any):ImportData {
           }
 
           const carSet = driverCars[recordObject.record.driver as keyof typeof driversLookUp];
+          
 
           carSet.add(recordObject.record.car)
 
@@ -99,6 +108,7 @@ function convertYamlToData(yamlDocument:any):ImportData {
   });
 
   return {
+    drivers: driversLookUp,
     cars: driverCars,
     tracks,
   }
@@ -106,10 +116,21 @@ function convertYamlToData(yamlDocument:any):ImportData {
 
 function convertYamlToSQL( importData:ImportData ):string {
   
-  let sql = Object.keys( importData.cars ).flatMap( driver => {
+  let sql = '';
+
+  sql += Object.keys( importData.drivers).map( (driver) => {
+    const order = importData.drivers[driver];
+    return `INSERT INTO drivers (name, "order") VALUES ('${driver}', ${order});`;
+  }).join('\n');
+
+  sql += '\n\n';
+
+  sql += Object.keys( importData.cars ).flatMap( driver => {
     
     const driverId = driversLookUp[driver as keyof typeof driversLookUp];
     const carSet = importData.cars[driver];
+
+    //`INSERT INTO drivers (name, "order") VALUES (${driver}, 1);`
 
     return [ ...carSet ].map(carName => {
       return `INSERT INTO cars (name, drivers_id) VALUES ('${carName}', ${driverId});`
