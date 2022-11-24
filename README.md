@@ -34,13 +34,47 @@ Project database settings are stored root of project folder in a file called `.e
 
 Example of the file content, to use the application you need to create this file manually root of the folder.
 
+# Environment variables file
+
+Node.js need some configurations like database password, port and database name. These are set by creating a file called `.env.local` Node.js process read environment variables from there. 
+
+Example file: 
+
 ```
+DATABASE_URL=
 PGSQL_HOST= 127.0.0.1
 PGSQL_PORT= 5432
-PGSQL_DATABASE= record-editor
-PGSQL_USER= 
-PGSQL_PASSWORD= 
+PGSQL_DATABASE=db
+PGSQL_USER=app
+PGSQL_PASSWORD=app 
+GITHUB_ID=
+GITHUB_SECRET=
 ```
+
+Variables explained `DATABASE_URL` is a alternative way to connect to Postgres database, it takes a Postgres connection string. An alternative way to form a connection to database is use `PGSQL_HOST` host address witch can be 'localhost' or `127.0.0.1` or similar. `PSQL_PORT` is for port number for Postgres sever. `PGSQL_DATABASE` is Postgres database name. `PGSQL_USER` is Potgres user name and `PGSQL_PASSWORD` is the Postgres user password.
+
+`GITHUB_ID` is oAuth application id for authenticating user and `GITHUB_SECRET` is some secret key.
+
+
+# Create certificates for running on HTTPS protocol
+
+... write something ...
+
+## Setting up database
+
+Note: This step is expecting that you have installed `psql` command line tool.
+
+Easiest way to set up a Postgres database for the project is using a Docker. By running a command `docker-compose up db` this downloads images and set up docker container for Postgres server.
+
+Next phase is to create database structure called schema. You can find two files from the project one for creating the database and second one for inserting test data.
+
+Script will ask for a password, in the development environment it is a `app`.
+
+For creating a database structure run command: `psql -U app -d db -a -f ./database/record-editor-schema.sql -p 5432 -h localhost`
+
+For inserting test data run `psql -U app -d db -a -f ./database/record-editor-data.sql -p 5432 -h localhost`
+
+## Database structure
 
 ## Learn More 
 
@@ -49,10 +83,4 @@ To learn more about Next.js, take a look at the following resources:
 - [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
 - [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!s
