@@ -37,7 +37,7 @@ type ImportData = {
   cars: {
     [key: string]: Set<string>
   },
-  drivers: Driver
+  drivers: DriverData
 }
 
 type ImportCar = {
@@ -56,7 +56,7 @@ const initialState:ImportDataState = {
   sqlTextAreaContent: ''
 }
 
-interface Driver {
+interface DriverData {
   [key: string]: number
 }
 
@@ -64,7 +64,7 @@ interface DriverCars {
   [key: string]: Set<string>
 }
 
-const driversLookUp:Driver =  {};
+const driversLookUp:DriverData =  {};
 
 function convertYamlToData(yamlDocument:any):ImportData {
   
