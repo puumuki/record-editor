@@ -1,5 +1,5 @@
 ﻿--CREATE TABLES
-
+BEGIN;
 CREATE SEQUENCE drivers_id_seq;
 CREATE SEQUENCE records_id_seq;
 CREATE SEQUENCE sessions_id_seq;
@@ -80,3 +80,4 @@ ALTER TABLE ONLY tracks ADD COLUMN deleted boolean DEFAULT false;
 ALTER TABLE ONLY records ADD COLUMN deleted boolean DEFAULT false;
 
 DROP TABLE sessions;
+COMMIT;

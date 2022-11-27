@@ -22,7 +22,9 @@ export type DriverEditorState = {
   cars: Car[],  
 
   carname: string,  
-  carScores: string
+  carScores: string,
+  
+  showConfirmDialog: boolean,
 
   focus: 'carname'|'carscore'|undefined,
 
@@ -38,7 +40,8 @@ const initialState:DriverEditorState = {
   carname: '',
   carScores: '',
   focus:undefined,
-  order:'name'
+  order:'name',
+  showConfirmDialog: false
 };
 
 export const fetchDriversCars = createAsyncThunk(
@@ -55,7 +58,7 @@ export const createCar = createAsyncThunk(
   'race-recorder/createCar',
   async (payload:Car,tuckApi) => {
     const respone = await api.createCar(payload);
-    tuckApi.dispatch(fetchDriversCars())           
+    tuckApi.dispatch(fetchDriversCars());           
     return respone;
   }
 )
@@ -69,6 +72,13 @@ export const updateCar = createAsyncThunk(
   }
 )
 
+export const deleteCar = createAsyncThunk(
+  'race-recorder/deleteCar',
+  async (payload:Car,tuckApi) => {
+    const response = await api.deleteCar(payload);           
+    tuckApi.dispatch(fetchDriversCars())   
+  }  
+)
 
 export const editorSlice = createSlice({
   name: 'drivers',
@@ -103,7 +113,12 @@ export const editorSlice = createSlice({
     setOrder: (state, action: PayloadAction<'name'|'score'>) => {
       state.order = action.payload;
       return state;
-    },    
+    },  
+    setShowConfirmDialog: (state, action: PayloadAction<boolean>) => {      
+      console.log( action.payload)
+      state.showConfirmDialog = action.payload;
+      return state;
+    },  
   },
 
   extraReducers(builder) {          
@@ -115,14 +130,16 @@ export const editorSlice = createSlice({
     .addCase(fetchDriversCars.fulfilled, (state, action) => {
       state.status = 'succeeded';            
       const [drivers, cars] = action.payload;
-      state.drivers = drivers;      
-      state.cars = cars;
-      if( !state.driver_id ) {
+      state.drivers = drivers ? drivers : [];      
+      state.cars = cars ? cars : [];
+      if( !state.driver_id && state.drivers?.length > 0 ) {
         state.driver_id = state.drivers[0].id ?? undefined;
       }
-      state.filters = drivers.map( driver => {
-        return { driver_id: driver.id ?? undefined, filter: ''};
-      })
+      if(drivers && drivers.length > 0) {
+        state.filters = drivers.map( driver => {
+          return { driver_id: driver.id ?? undefined, filter: ''};
+        });
+      }
       return state;      
     })
     .addCase(fetchDriversCars.rejected, (state, action) => {
@@ -140,7 +157,8 @@ export const {
   setCarName,
   setCarScore,
   setFocus,
-  setOrder
+  setOrder,
+  setShowConfirmDialog
 } = editorSlice.actions; 
 
 export default editorSlice.reducer;

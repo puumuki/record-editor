@@ -7,6 +7,7 @@
     "name": "Teemu Puukko"
   },
   "scripts": {
+    "nextdev": "next dev",
     "dev": "node server.js",
     "build": "next build",
     "start": "next start",

@@ -209,7 +209,6 @@ export const editorSlice = createSlice({
 
   extraReducers(builder) {  
     
-    
     builder
       .addCase(fetchTracksDriversCars.pending, (state, action) => {
         state.status = 'loading';
@@ -217,14 +216,21 @@ export const editorSlice = createSlice({
       .addCase(fetchTracksDriversCars.fulfilled, (state, action) => {
         state.status = 'succeeded';        
         const [drivers, tracks, cars] = action.payload;
-        state.drivers = drivers;
-        state.tracks = tracks;
-        state.cars = cars;
-        state.track_id = state.track_id ? state.track_id : state.tracks[0].id ?? undefined;
+        state.drivers = drivers ? drivers : [];
+        state.tracks = tracks ? tracks : [];
+        state.cars = cars ? cars : [];
+        
+        if( state.track_id ) {
+          state.track_id = state.track_id;
+        } else if( state.tracks?.length > 0 ) {
+          state.track_id = state.tracks[0].id ?? undefined;
+        }
+
         return state;
       })
       .addCase(fetchTracksDriversCars.rejected, (state, action) => {
         state.status = 'failed';        
+        console.log(action)
         return state;
       })
 

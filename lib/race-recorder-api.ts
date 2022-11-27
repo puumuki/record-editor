@@ -52,6 +52,17 @@ export async function updateCar(car:Car):Promise<Car> {
   return responseData.data;
 }
 
+export async function deleteCar(car:Car):Promise<Car> {
+  const response = await fetch('/api/car', {          
+    headers: { 'Content-Type': 'application/json' },      
+    method: 'DELETE',
+    body: JSON.stringify(car)
+  }); 
+
+  const responseData = await response.json();
+  return responseData.data;
+}
+
 export async function createRecord(record:Record):Promise<Record> {
   const response = await fetch('/api/record', {          
     headers: { 'Content-Type': 'application/json' },      
