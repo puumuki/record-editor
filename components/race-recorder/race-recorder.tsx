@@ -26,8 +26,9 @@ import ConfirmModal from '../confirm-modal';
 import { batch } from 'react-redux';
 import Spinner from '../Spinner/Spinner';
 import { readHistoryState } from './history';
-import { sortTrackAlphabetically } from '../../lib/helpers';
+import { sortCarsAlphabetically, sortTrackAlphabetically } from '../../lib/helpers';
 import WarningMessage from '../Warning';
+import Score from '../Score';
 
 interface createRowTypes {
   record_id?: number, 
@@ -60,6 +61,7 @@ function createRecordRows({record_id, track_id, drivers, tracks, cars, modify_re
       <td>{new SecondParts(record.time).format}</td>
       <td>{driver?.name}</td>
       <td>{car?.name}</td>
+      <td><Score score={car?.scores} /></td>
       {session && ( 
         <td className={`text-end`}>
           <button type="button" 
@@ -294,10 +296,6 @@ export default function RaceRecorder() {
 
 
         <div className='col-md-12 col-lg-6 mt-3 mt-lg-0 d-flex justify-content-lg-end'>
-          <div className='form-group'>
-            <label htmlFor="time">Aika</label>
-            <input id="time" type="text" className='form-control' value={state.time || ''} onChange={onTimeChanges}></input>
-          </div>
 
           <div className='form-group ms-3'>
             <label htmlFor="driver">Pelaaja</label>
@@ -320,11 +318,16 @@ export default function RaceRecorder() {
                     className='form-control' 
                     disabled={!state.cars.some( car => car.drivers_id === state.driver_id )}>
               <option value="">Ei valintaa</option>                        
-              {state.cars.filter( car => car.drivers_id === state.driver_id ). map( car => {
+              {sortCarsAlphabetically(state.cars.filter( car => car.drivers_id === state.driver_id )). map( car => {
                 return <option value={car.id ?? undefined} key={car.id}>{car.name}</option>
               })}
             </select>
           </div>    
+
+          <div className='form-group ms-3'>
+            <label htmlFor="time">Aika</label>
+            <input id="time" type="text" className='form-control' value={state.time || ''} onChange={onTimeChanges}></input>
+          </div>
 
           <div className='form-group ms-3 d-flex align-items-end me-2'>            
             <button type="button" 
@@ -344,7 +347,8 @@ export default function RaceRecorder() {
               <tr>
                 <td>Aika</td>
                 <td>Kuski</td>
-                <td colSpan={2}>Auto</td>
+                <td>Auto</td>
+                <td colSpan={2}>Auton pisteet</td>
               </tr>
             </thead>
 

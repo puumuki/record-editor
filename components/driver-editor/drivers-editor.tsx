@@ -3,7 +3,19 @@ import React, { useEffect, useRef  } from 'react';
 import { sortCarsAlphabetically, sortCarsByScores } from '../../lib/helpers';
 
 import { 
-  fetchDriversCars, FilterDriverState, setDriverId, setFiltersState, setCarId, setCarName, updateCar, createCar, setCarScore, setFocus, setOrder
+  fetchDriversCars, 
+  FilterDriverState, 
+  setDriverId, 
+  setFiltersState, 
+  setCarId, 
+  setCarName, 
+  updateCar, 
+  createCar, 
+  setCarScore, 
+  setFocus, 
+  setOrder,
+  deleteCar,
+  setShowConfirmDialog
 } from './driver-editor-slice';
 
 import { useAppDispatch } from '../race-recorder/hooks';
@@ -12,13 +24,16 @@ import { Car } from '../../types/types';
 import HighlightedText from './highlightedtext';
 import { batch } from 'react-redux';
 import WarningMessage from '../Warning';
-//import styles from '../../styles/DriversEditor.module.scss';
+import Score from '../Score';
+import { useSession } from 'next-auth/react';
+import ConfirmModal from '../confirm-modal';
 
 export default function DriversEditor() {
 
   const tableRef = useRef<HTMLTableElement>(null);
   const state = useAppSelector( state => state.drivers );
   const dispatch = useAppDispatch();
+  const { data: session } = useSession();
 
   useEffect(() => {
     dispatch(fetchDriversCars());             
@@ -93,7 +108,7 @@ export default function DriversEditor() {
       const carId = parseInt(target.dataset.carId ?? '');      
       const car = state.cars.find( car => car.id === carId );
 
-      if( car ) {
+      if( car && session) {
         batch(() => {
           dispatch(setCarId(carId));
           dispatch(setCarName(car.name));
@@ -135,6 +150,7 @@ export default function DriversEditor() {
         scores: 0
       }));  
       dispatch(setCarId(undefined));      
+      dispatch(setCarName(''));
     });    
   }
 
@@ -177,6 +193,32 @@ export default function DriversEditor() {
     carsAlfabetically = sortCarsByScores( driverCars );
   }
   
+  const onDeleteCarClicked = (event:React.MouseEvent) => {
+    event.stopPropagation();
+    event.preventDefault();
+    const buttonElement = event.target as HTMLButtonElement;
+    const carId = parseInt( buttonElement.dataset.carId ?? '' );
+    batch(() => {
+      dispatch(setCarId(carId));
+      dispatch(setShowConfirmDialog(true));
+    });    
+  }
+
+  const onConfirmDelete = () => {    
+    const car = state.cars.find( car => car.id === state.car_id );
+    if( car ) {
+      batch(() => {
+        dispatch(deleteCar(car));
+        dispatch(setShowConfirmDialog(false));
+      });
+    }    
+  }
+  
+  const onClose = () => {
+    dispatch(setShowConfirmDialog(false));
+  }
+  
+  const car = state.cars.find(car => car.id === state.car_id);
 
   return <>    
     <section className="race-recorder container">
@@ -184,6 +226,15 @@ export default function DriversEditor() {
     {state.drivers.length === 0 && (
         <WarningMessage title="Onglema havaittu" 
                         message="Tietoja kuskeista ei ole tällä hetkellä saatavissa, onko yhteys tietokantaan poikki vai eikö tietokannasta löydy tietoa?" />      
+    )}
+
+    { state.showConfirmDialog && (
+      <>        
+        <ConfirmModal title='Olet poistamassa ajoneuvoa.'
+                      text={`Haluatko varmasti poistaa ajoneuvon ${car?.name}? `}
+                      confirmCallBack={onConfirmDelete} 
+                      onCloseCallBack={onClose} ></ConfirmModal>
+                      </>
     )}
 
 
@@ -220,17 +271,22 @@ export default function DriversEditor() {
 
           </div>
 
-          <div className="col-4">
-            <div className='form-group'>
-              <label htmlFor='car-name'>Auton nimi</label>
-              <input type="text" 
-                     className='form-control' 
-                     onChange={onCarNameChange}></input>
-            </div>                        
-          </div>
-          <div className="col-2 d-flex align-items-end">
-            <button type="submit" className="btn btn-primary" onClick={onCreateCar}>Lisää</button>
-          </div>        
+          {session && (
+            <>
+            <div className="col-4">
+              <div className='form-group'>
+                <label htmlFor='car-name'>Auton nimi</label>
+                <input type="text" 
+                      value={state.carname}
+                      className='form-control' 
+                      onChange={onCarNameChange}></input>
+              </div>                        
+            </div>
+            <div className="col-2 d-flex align-items-end">
+              <button type="submit" className="btn btn-primary" onClick={onCreateCar}>Lisää</button>
+            </div>    
+            </>
+          )}          
         </div>
 
         <div className='row'>
@@ -309,10 +365,12 @@ export default function DriversEditor() {
                 {state.car_id !== car.id && (
                   <>
                     <td data-car-id={car.id} onClick={onCarClicked}>
-                      <HighlightedText text={car.name} searchText={filter?.filter ?? ''}></HighlightedText>
-                      <i className="bi-brush" role="img" aria-label="GitHub"></i>
+                      <HighlightedText text={car.name} searchText={filter?.filter ?? ''}></HighlightedText>                      
                     </td>
-                    <td data-car-id={car.id} onClick={onCarClicked}>{car.scores}</td>
+                    <td data-car-id={car.id} onClick={onCarClicked} className="d-flex align-items-center">
+                      <Score score={car.scores}></Score>                                            
+                      <button type="button" className='btn btn-primary delete-btn' data-car-id={car.id} onClick={onDeleteCarClicked}>Poista</button>                      
+                    </td>
                   </>
                 )}                
               </tr>);
