@@ -70,6 +70,14 @@ export const fetchTracksDriversCars = createAsyncThunk(
   }
 )
 
+export const fetchCars = createAsyncThunk(
+  'race-recorder/fetchCars',
+  async () => {
+    return await api.getCars();
+  }
+)
+
+
 export const fetchDrivers = createAsyncThunk(
   'race-recorder/fetchDriver',
   async () => {
@@ -295,7 +303,7 @@ export const editorSlice = createSlice({
         state.driver_id = undefined;
         state.car_id = undefined;
         state.record_id = undefined;
-        state.modify_record_id = undefined;
+        state.modify_record_id = undefined;        
         return state;
       })
       .addCase(createRecord.rejected, (state) => {
@@ -337,7 +345,23 @@ export const editorSlice = createSlice({
       .addCase(updateRecord.rejected, (state, action) => {        
         state.status = 'failed';
         return state;
-      });                  
+      })
+
+      .addCase(fetchCars.pending, (state, action) => {
+        state.status = 'pending';
+        return state;
+      })
+
+      .addCase(fetchCars.fulfilled, (state, action) => {
+        state.status = 'succeeded';
+        state.cars = action.payload ? action.payload : [];
+        return state;
+      })
+
+      .addCase(fetchCars.rejected, (state, action) => {        
+        state.status = 'failed';
+        return state;
+      });         
   }  
 });
 

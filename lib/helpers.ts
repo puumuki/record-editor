@@ -1,3 +1,4 @@
+import { Session } from "next-auth";
 import { Car, Track } from "../types/types";
 
 export function sortCarsAlphabetically(cars:Car[]):Car[] {
@@ -18,3 +19,6 @@ export function sortTrackAlphabetically(cars:Track[]):Track[] {
   });
 }
 
+export function isAdmin(session:Session|null):boolean {
+  return session?.user?.role === 'admin' ?? false;
+}
