@@ -41,7 +41,7 @@ interface createRowTypes {
   tracks:Track[], 
   cars: Car[],
   modify_record_id?: number,
-  session:Session
+  session:Session|null
 }
 
 function createRecordRows({record_id, track_id, drivers, tracks, cars, modify_record_id, session}:createRowTypes) {
