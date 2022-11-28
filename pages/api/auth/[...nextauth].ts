@@ -1,6 +1,8 @@
 import NextAuth, { Session } from "next-auth"
 import GitHubProvider from "next-auth/providers/github";
 
+const admins = ['tatu.puukko@gmail.com', 'toni.puukko@gmail.com', 'teemuki@gmail.com'];
+
 export const authOptions = {
   providers: [
     GitHubProvider({
@@ -11,7 +13,7 @@ export const authOptions = {
   callbacks: {
     session({ session }: {session:Session}) {
       
-      if( session.user.email === 'teemuki@gmail.com' ) {        
+      if( admins.includes( session.user.email ?? '' ) ) {        
         session.user.role = 'admin';
       }
 
