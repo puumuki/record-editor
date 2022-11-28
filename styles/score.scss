@@ -1,0 +1,51 @@
+span.score {
+
+  background-color: $color-white;  
+  min-width: 70px;
+  color: white;
+  padding: 3px 4px 3px 8px;
+  border-radius: 0.5em;
+  display: inline-flex;
+
+  .points {
+    background-color: $color-white;
+    color: $color-black;
+    padding-left: 5px;
+    padding-right: 5px;
+    margin-left: 5px;
+    border-radius: 0.25em;
+    margin-left: auto;
+  }
+
+  &.performance-index--x {
+    background-color: $performance-index-x;
+  }
+
+  &.performance-index--s2 {
+    background-color: $performance-index-s2;
+  }
+
+  &.performance-index--s1 {
+    background-color: $performance-index-s1;
+  }
+
+  &.performance-index--a {
+    background-color: $performance-index-a;
+  }
+
+  &.performance-index--b {
+    background-color: $performance-index-b;
+  }
+  
+  &.performance-index--c {
+    background-color: $performance-index-c;
+  }
+  
+  &.performance-index--d {
+    background-color: $performance-index-d;
+  }  
+
+  &.performance-index--na {
+    background-color: transparent;
+  }  
+}

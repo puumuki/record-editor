@@ -1,6 +1,6 @@
 
 import React, { useEffect, useRef  } from 'react';
-import { sortCarsAlphabetically, sortCarsByScores } from '../../lib/helpers';
+import { isAdmin, sortCarsAlphabetically, sortCarsByScores } from '../../lib/helpers';
 
 import { 
   fetchDriversCars, 
@@ -108,7 +108,7 @@ export default function DriversEditor() {
       const carId = parseInt(target.dataset.carId ?? '');      
       const car = state.cars.find( car => car.id === carId );
 
-      if( car && session) {
+      if( car && isAdmin(session)) {
         batch(() => {
           dispatch(setCarId(carId));
           dispatch(setCarName(car.name));
@@ -271,7 +271,7 @@ export default function DriversEditor() {
 
           </div>
 
-          {session && (
+          {isAdmin(session) && (
             <>
             <div className="col-4">
               <div className='form-group'>

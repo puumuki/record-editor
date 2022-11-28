@@ -114,8 +114,7 @@ export const editorSlice = createSlice({
       state.order = action.payload;
       return state;
     },  
-    setShowConfirmDialog: (state, action: PayloadAction<boolean>) => {      
-      console.log( action.payload)
+    setShowConfirmDialog: (state, action: PayloadAction<boolean>) => {            
       state.showConfirmDialog = action.payload;
       return state;
     },  
@@ -137,16 +136,31 @@ export const editorSlice = createSlice({
       }
       if(drivers && drivers.length > 0) {
         state.filters = drivers.map( driver => {
-          return { driver_id: driver.id ?? undefined, filter: ''};
+          const filter = state.filters.find( filter => filter.driver_id === driver.id );          
+          return { driver_id: driver.id ?? undefined, filter:  filter?.filter ?? '' };          
         });
-      }
+      }      
       return state;      
     })
     .addCase(fetchDriversCars.rejected, (state, action) => {
       state.status = 'failed';
       return state;
-    });                       
-
+    })                       
+    .addCase(createCar.pending, (state, action) => {
+      state.status = 'loading';
+      return state;
+    })
+    .addCase(createCar.fulfilled, (state, action) => {
+      state.status = 'succeeded';            
+      state.car_id = action.payload.id ?? undefined;
+      state.focus = 'carscore';
+      state.carname = action.payload.name;
+      return state;      
+    })
+    .addCase(createCar.rejected, (state, action) => {
+      state.status = 'failed';
+      return state;
+    });
   }  
 });
 

@@ -14,7 +14,8 @@ import {
   setModifyRecordId,
   updateRecord,
   updateHistoryState,
-  updateStateFromHistory
+  updateStateFromHistory,
+  fetchCars
 } from './race-recorder-slice'
 
 import TrackEditorModel from './track-editor-modal';
@@ -26,9 +27,12 @@ import ConfirmModal from '../confirm-modal';
 import { batch } from 'react-redux';
 import Spinner from '../Spinner/Spinner';
 import { readHistoryState } from './history';
-import { sortCarsAlphabetically, sortTrackAlphabetically } from '../../lib/helpers';
+import { isAdmin, sortCarsAlphabetically, sortTrackAlphabetically } from '../../lib/helpers';
 import WarningMessage from '../Warning';
 import Score from '../Score';
+import useInterval from '../../hooks/period-updater';
+import CarOption from './CarOptionSpan';
+import { Session } from 'next-auth';
 
 interface createRowTypes {
   record_id?: number, 
@@ -37,7 +41,7 @@ interface createRowTypes {
   tracks:Track[], 
   cars: Car[],
   modify_record_id?: number,
-  session:any
+  session:Session|null
 }
 
 function createRecordRows({record_id, track_id, drivers, tracks, cars, modify_record_id, session}:createRowTypes) {
@@ -62,7 +66,7 @@ function createRecordRows({record_id, track_id, drivers, tracks, cars, modify_re
       <td>{driver?.name}</td>
       <td>{car?.name}</td>
       <td><Score score={car?.scores} /></td>
-      {session && ( 
+      {isAdmin(session) && ( 
         <td className={`text-end`}>
           <button type="button" 
                     data-record-id={record.id}
@@ -81,6 +85,11 @@ export default function RaceRecorder() {
   
   const state = useAppSelector( (state) => state.raceeditor );    
   const dispatch = useAppDispatch();
+
+  //Peridiocally update cars from the database
+  useInterval({ interval: 5000, callback: () => {
+    dispatch(fetchCars());
+  }});
 
   //Clear car's id when a document is clicked outside of the table
   useEffect(() => {
@@ -286,7 +295,7 @@ export default function RaceRecorder() {
           </select>               
         </div>
 
-        {session && (
+        {isAdmin(session) && (
         <>
         
         <div className='col-lg-3 col-md-12 mt-3 mt-lg-0 d-flex align-items-end'>          
@@ -319,7 +328,7 @@ export default function RaceRecorder() {
                     disabled={!state.cars.some( car => car.drivers_id === state.driver_id )}>
               <option value="">Ei valintaa</option>                        
               {sortCarsAlphabetically(state.cars.filter( car => car.drivers_id === state.driver_id )). map( car => {
-                return <option value={car.id ?? undefined} key={car.id}>{car.name}</option>
+                return <option value={car.id ?? undefined} key={car.id}><CarOption car={car}></CarOption></option>
               })}
             </select>
           </div>    

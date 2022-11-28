@@ -2,6 +2,7 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import {createTrack, updateTrack} from '../../../lib/race-recorder/data-store';
 import { unstable_getServerSession } from "next-auth/next";
 import { authOptions } from "../auth/[...nextauth]";
+import { isAdmin } from "../../../lib/helpers";
 
 export default async function handler(request:NextApiRequest, response:NextApiResponse) {
      
@@ -9,7 +10,7 @@ export default async function handler(request:NextApiRequest, response:NextApiRe
   if(request.method !== 'GET') {
     const session = await unstable_getServerSession(request, response, authOptions);
 
-    if(!session) {
+    if(!isAdmin(session)) {
       return response.status(401).json({ status: 401, message: 'Permission denied' });   
     }
   }
