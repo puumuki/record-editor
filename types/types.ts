@@ -15,7 +15,7 @@ export interface Record {
 export interface Track {
   id: number|null,
   name: string,
-  description?: string,
+  description: string,
   records: Record[]
 }
 

@@ -120,7 +120,7 @@ export async function updateTrack(payload:Track):Promise<Track> {
   const response = await fetch(`/api/track/`, {          
     headers: { 'Content-Type': 'application/json' },      
     body: JSON.stringify(payload),
-    method: 'POST',
+    method: 'PUT',
   }); 
 
   const responseData = await response.json();

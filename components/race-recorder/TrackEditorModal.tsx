@@ -1,8 +1,9 @@
 import React from "react";
 import { Track } from "../../types/types";
-import TextField from "../text-field";
+import TextField from "../TextField";
 import { setTrackEditorModal, addTrack, updateTrack } from "./race-recorder-slice";
 import { useAppDispatch } from "./hooks";
+import TextArea from "../TextArea";
 
 interface TrackEditorModalProps {
   showTrackEditorModal: boolean,
@@ -41,12 +42,12 @@ export default function TrackEditorModel(props: TrackEditorModalProps) {
 
   }
 
-  function onTrackNameChanges(event:React.ChangeEvent<HTMLInputElement>) {
+  function onFieldChanges(event:React.ChangeEvent<HTMLInputElement|HTMLTextAreaElement>) {
     dispatch(setTrackEditorModal({
       showTrackEditorModal: true,
       trackEditorModalTrack: { 
         ...track, 
-        name: event.target.value 
+        [event.target.name]: event.target.value
       }
     }));     
   }
@@ -58,6 +59,8 @@ export default function TrackEditorModel(props: TrackEditorModalProps) {
       return <span>Luo uusi rata</span>
     }    
   };  
+
+  console.log(track)
 
   return (
     <dialog className={`modal fade ${showTrackEditorModal ? 'show' : ''}`} tabIndex={-1} role="dialog">
@@ -73,9 +76,17 @@ export default function TrackEditorModel(props: TrackEditorModalProps) {
           </div>
 
           <div className="modal-body">
-            <TextField label="Radan nimi" id="track-name" name="track-name" value={track.name} onChange={onTrackNameChanges}></TextField>
-          </div>
-
+            <div className="row">
+              <div className="col-12">
+                <TextField label="Radan nimi" id="track-name" name="name" value={track.name} onChange={onFieldChanges}></TextField>
+              </div>
+              <div className="col-12 mt-3">
+                <TextArea label="Radan kuvaus" id="track-description" name="description" value={track.description} onChange={onFieldChanges}></TextArea>    
+              </div>              
+            </div>
+            
+            
+          </div>          
 
           <div className="modal-footer">
             <button type="button" className="btn btn-primary" onClick={onSaveClicked}>Tallenna</button>
