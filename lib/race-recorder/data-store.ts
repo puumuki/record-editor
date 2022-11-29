@@ -208,7 +208,7 @@ export async function updateTrack(track:Track):Promise<Track>  {
 
   try {
     await client.query('BEGIN');
-    await client.query('UPDATE tracks SET name=$1 WHERE id = $2', [track.name,track.id])
+    await client.query('UPDATE tracks SET name= $1, description= $2 WHERE id = $3', [track.name, track.description,track.id])
     await client.query('COMMIT');    
   } catch( error ) {    
     logErrors(error);

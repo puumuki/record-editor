@@ -177,7 +177,7 @@ export const editorSlice = createSlice({
       state.trackEditorModalTrack = { 
         id: action.payload.trackEditorModalTrack?.id ?? null,
         name: action.payload.trackEditorModalTrack?.name ?? '',
-        description: '',
+        description: action.payload.trackEditorModalTrack?.description ?? '',
         records: []
       };      
       state.showTrackEditorModal = action.payload.showTrackEditorModal;      

@@ -256,7 +256,7 @@ export default function DriversEditor() {
         
         <div className="row mb-3">
 
-          <div className='col-3 d-flex align-items-end'>
+          <div className='col-12 col-md-3 d-flex align-items-end'>
             <div className="input-group">
               <input type="text" 
                      value={state.filters.find( filter => filter.driver_id === state.driver_id )?.filter }
@@ -273,7 +273,7 @@ export default function DriversEditor() {
 
           {isAdmin(session) && (
             <>
-            <div className="col-4">
+            <div className="col-8 col-md-4">
               <div className='form-group'>
                 <label htmlFor='car-name'>Auton nimi</label>
                 <input type="text" 
@@ -282,7 +282,7 @@ export default function DriversEditor() {
                       onChange={onCarNameChange}></input>
               </div>                        
             </div>
-            <div className="col-2 d-flex align-items-end">
+            <div className="col-4 d-flex align-items-end">
               <button type="submit" className="btn btn-primary" onClick={onCreateCar}>Lisää</button>
             </div>    
             </>
@@ -330,6 +330,7 @@ export default function DriversEditor() {
               if( i > 0 ) {
                 previousCarId = carsAlfabetically[i-1].id;
               } 
+
               if( i < carsAlfabetically.length-1 ) {
                 nextCarId = carsAlfabetically[i+1].id;
               }           
@@ -368,8 +369,10 @@ export default function DriversEditor() {
                       <HighlightedText text={car.name} searchText={filter?.filter ?? ''}></HighlightedText>                      
                     </td>
                     <td data-car-id={car.id} onClick={onCarClicked} className="d-flex align-items-center">
-                      <Score score={car.scores}></Score>                                            
-                      <button type="button" className='btn btn-primary delete-btn' data-car-id={car.id} onClick={onDeleteCarClicked}>Poista</button>                      
+                      <Score score={car.scores}></Score>   
+                      {isAdmin(session) && (
+                        <button type="button" className='btn btn-primary delete-btn' data-car-id={car.id} onClick={onDeleteCarClicked}>Poista</button>                      
+                      )}                      
                     </td>
                   </>
                 )}                

@@ -18,7 +18,7 @@ import {
   fetchCars
 } from './race-recorder-slice'
 
-import TrackEditorModel from './track-editor-modal';
+import TrackEditorModel from './TrackEditorModal';
 import { useSession } from 'next-auth/react';
 import { Car, Driver, Record, Track } from '../../types/types';
 import { useAppDispatch, useAppSelector } from './hooks';
@@ -247,7 +247,7 @@ export default function RaceRecorder() {
     try {
       const inputElement = event.target as HTMLInputElement;     
       batch(() => {
-        dispatch(updateHistoryState({...state, time: inputElement.value}));
+        dispatch(updateHistoryState({...state.historyState, time: inputElement.value}));
         dispatch(setTime(inputElement.value));
       });    
     } catch( error ) {
@@ -259,7 +259,7 @@ export default function RaceRecorder() {
     const selectElement = event.target as HTMLSelectElement;
     batch(() => {
       const driverId = parseInt(selectElement.value);
-      dispatch(updateHistoryState({...state, drivers_id: driverId }));
+      dispatch(updateHistoryState({...state.historyState, drivers_id: driverId }));
       dispatch(setDriverId( driverId ));                
     })    
   }
