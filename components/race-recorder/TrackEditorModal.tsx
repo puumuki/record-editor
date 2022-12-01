@@ -60,8 +60,6 @@ export default function TrackEditorModel(props: TrackEditorModalProps) {
     }    
   };  
 
-  console.log(track)
-
   return (
     <dialog className={`modal fade ${showTrackEditorModal ? 'show' : ''}`} tabIndex={-1} role="dialog">
       <div className="modal-dialog" role="document">

@@ -3,6 +3,7 @@ import * as api from '../../lib/race-recorder-api';
 import {Track, Driver, Record, Car} from '../../types/types';
 import _ from 'lodash';
 import {HistoryState, readHistoryState, pushHistoryState} from './history';
+import { RootState } from '../../lib/store';
 
 export interface RecordValidity {
   isValid?: boolean|null,
@@ -379,3 +380,9 @@ export const {
 } = editorSlice.actions; 
 
 export default editorSlice.reducer;
+
+//Selector to derive parts of the applications state
+export const selectTrackRecords = (state:RootState):Record[] => {
+  const track = state.raceeditor.tracks.find( track => track.id === state.raceeditor.track_id );  
+  return track?.records ? track.records : [];
+}

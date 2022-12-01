@@ -15,7 +15,8 @@ import {
   updateRecord,
   updateHistoryState,
   updateStateFromHistory,
-  fetchCars
+  fetchCars,
+  selectTrackRecords
 } from './race-recorder-slice'
 
 import TrackEditorModel from './TrackEditorModal';
@@ -24,7 +25,7 @@ import { Car, Driver, Record, Track } from '../../types/types';
 import { useAppDispatch, useAppSelector } from './hooks';
 import SecondParts from '../../lib/second-parts';
 import ConfirmModal from '../confirm-modal';
-import { batch } from 'react-redux';
+import { batch, useSelector } from 'react-redux';
 import Spinner from '../Spinner/Spinner';
 import { readHistoryState } from './history';
 import { isAdmin, sortCarsAlphabetically, sortTrackAlphabetically } from '../../lib/helpers';
@@ -33,6 +34,7 @@ import Score from '../Score';
 import useInterval from '../../hooks/period-updater';
 import CarOption from './CarOptionSpan';
 import { Session } from 'next-auth';
+import RaceRecorderTableFooter from './RaceRecorderTableFooter';
 
 interface createRowTypes {
   record_id?: number, 
@@ -85,7 +87,7 @@ export default function RaceRecorder() {
   
   const state = useAppSelector( (state) => state.raceeditor );    
   const dispatch = useAppDispatch();
-
+  
   //Peridiocally update cars from the database
   useInterval({ interval: 5000, callback: () => {
     dispatch(fetchCars());
@@ -262,7 +264,7 @@ export default function RaceRecorder() {
       dispatch(updateHistoryState({...state.historyState, drivers_id: driverId }));
       dispatch(setDriverId( driverId ));                
     })    
-  }
+  }  
       
   return (
     <section className="race-recorder container">
@@ -372,6 +374,8 @@ export default function RaceRecorder() {
                 session
               })}              
             </tbody>
+
+            <RaceRecorderTableFooter records={useSelector( selectTrackRecords )}></RaceRecorderTableFooter>
 
           </table>
         </div>
