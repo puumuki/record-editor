@@ -44,7 +44,7 @@ There is a set of mock data that can be used to generate some content for the de
 
 This SQL can be pushed to database same way as schema `pg_dump -U <username> -s record-editor > record-editor-schema.sql`.
 
-[Mocking data](./public/data-import.png)
+![Mocking data](./public/data-import.png?=raw)
 
 # Environment variables file
 
@@ -91,12 +91,3 @@ For inserting test data run `psql -U app -d db -a -f ./database/record-editor-da
 Database schema can be viewed with a MySQL Workbench app and file can be found from [./database/model.mwb](./database/model.mwb)
 
 ![Image](./public/database.png?raw=true)
-
-## Learn More 
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!s
