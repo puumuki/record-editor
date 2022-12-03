@@ -96,5 +96,4 @@ Database schema can be viewed with a MySQL Workbench app and file can be found f
 
   * https://racerecorder.herokuapp.com/api/tracks - GET - Get all tracks
   * https://racerecorder.herokuapp.com/api/drivers - GET - Get all drivers
-  * https://racerecorder.herokuapp.com/api/cars - GET - Get all cars
-  * https://racerecorder.herokuapp.com/api/records - GET - Get all recoreds
+  * https://racerecorder.herokuapp.com/api/cars - GET - Get all cars  
