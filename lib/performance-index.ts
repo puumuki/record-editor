@@ -1,10 +1,23 @@
+/**
+ * Performance index is Forza Horizon 5 way to classify the cars to performance categories.
+ * Classes are something like D is for very slow car, A is kinda nice car, S is a performance car and S2 is a supercarish class..
+ * and X is over the top.
+ */
 export interface PerformanceIndex {
-  name: string,
+  /**
+   * Performance index letter
+   */
+  name: 'D'|'C'|'B'|'A'|'S1'|'S2'|'X'|'',
+
+  /**
+   * Color CSS-class name
+   */
   color: string
 }
 
 /**
- * Convert scores to perfomance index
+ * This function convert performance scores to predefined performance index.
+ * 
  * @param score vehicle's performance index
  * @returns performance index object
  */
