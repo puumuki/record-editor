@@ -11,4 +11,4 @@ export default function HighlightedText(props:HighlightedTextProps) {
   return <span>{parts.map((part, i) => {
     return <span key={i}>{part.toLowerCase() === searchText.toLowerCase() ? <b>{part}</b> : part}</span>
   })}</span>;
-}
+} 
