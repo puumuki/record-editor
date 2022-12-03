@@ -2,32 +2,89 @@ import { createSlice, createAsyncThunk, PayloadAction   } from '@reduxjs/toolkit
 import * as api from '../../lib/race-recorder-api';
 import {Track, Driver, Record, Car} from '../../types/types';
 import _ from 'lodash';
-//import {HistoryState, readHistoryState, pushHistoryState} from './history';
 
+/**
+ * UI has a filtering functionality. Driver's cars can be filtered.
+ * Each driver has own tab and each driver has own filter.
+ */
 export type FilterDriverState = {
-  driver_id?: number,
-  filter: string,
 
+  /**
+   * Driver's id
+   */
+  driver_id?: number,
+
+  /**
+   * Filter used filter driver's cars
+   */
+  filter: string,
 }
 
+/**
+ * DriveEditorState defines a state for DriverEditor
+ */
 export type DriverEditorState = {
+
+  /**
+   * Selected tab / A selected driver's id.
+   */
   driver_id?: number;
+
+  /**
+   * Car's id that is currently being modified. If value is undefined there is no any car beign modifed.
+   */
   car_id?: number;
   
-  status: string,
+  /**
+   * Ajax request loading status
+   * 
+   * States are:
+   *  - loading - Ajax request is currently making an request
+   *  - failed - Request time out or returned HTTP request with a 400 or 500 status code
+   *  - succeeded - Request returned with a HTTP status code 200
+   */
+  status: 'failed'|'succeeded'|'loading',
   
+  /**
+   * Filters for each driver
+   */
   filters: FilterDriverState[],
 
+  /**
+   * All drivers
+   */
   drivers: Driver[],
+
+  /**
+   * All cars
+   */
   cars: Car[],  
 
+  /**
+   * Currently modified car's name
+   */
   carname: string,  
+
+  /**
+   * Currently modified cars performance index scores. For clear definition of the performance index can be
+   * found from performance-index.ts. 
+   */
   carScores: string,
   
+  /**
+   * This value defines is ConfirmDialog shown. If value is true dialog is shown and if value false dialog is hidden.
+   */
   showConfirmDialog: boolean,
 
+  /**
+   * Focus can be in one car at once and a car has two values car's name or car's score.
+   * It one of those. Notice that this works with the car car_id property, only one can be focused at the time.
+   */
   focus: 'carname'|'carscore'|undefined,
 
+  /**
+   * Only on column can be ordered at the time.. small limitation for now.
+   */
   order: 'name'|'score'
 };
 
