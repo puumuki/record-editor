@@ -1,0 +1,26 @@
+{
+  "translation": {    
+    "racerecorder.database.connection.error.title": "Problem occured",
+    "racerecorder.database.connection.error.description": "Data from drivers are not curretly available, is database connection broken or is database just empty?",
+    "racerecorder.confirmdialog.deletetime.title": "Olet poistamassa aikaa.",
+    "racerecorder.confirmdialog.deletetime.description": "Haluatko varmasti poistaa merkinnän?",
+    "racerecorder.modifytrackbutton":"Modify Track",
+    "racerecorder.createtrackbutton":"Add Track",
+    "racerecorder.track":"Track",
+    "racerecorder.choosetrack":"Choose Track",
+    "racerecorder.driver": "Player",
+    "racerecorder.vehicle": "Vehicle", 
+    "racerecorder.time": "Time", 
+    "racerecorder.emptyoption": "No selection",
+    "racerecorder.delete": "Delete",
+    "racerecorder.modify": "Modify",
+    "racerecorder.add": "Add",
+
+    "racerecorder.table.time": "Time",
+    "racerecorder.table.driver": "Driver",
+    "racerecorder.table.vehicle": "Vehicle",
+    "racerecorder.table.scores": "Driver scores"
+
+
+  }
+}

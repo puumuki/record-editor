@@ -1,4 +1,6 @@
 import React, { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
+import i18next from 'i18next';
 
 import { 
   createRecord,
@@ -24,66 +26,22 @@ import { useSession } from 'next-auth/react';
 import { Car, Driver, Record, Track } from '../../types/types';
 import { useAppDispatch, useAppSelector } from './hooks';
 import SecondParts from '../../lib/second-parts';
-import ConfirmModal from '../confirm-modal';
+import ConfirmModal from '../ConfirmModal';
 import { batch, useSelector } from 'react-redux';
 import Spinner from '../Spinner/Spinner';
 import { readHistoryState } from './history';
 import { isAdmin, sortCarsAlphabetically, sortTrackAlphabetically } from '../../lib/helpers';
 import WarningMessage from '../Warning';
-import Score from '../Score';
-import useInterval from '../../hooks/period-updater';
+import useInterval from '../../hooks/use-interval';
 import CarOption from './CarOptionSpan';
-import { Session } from 'next-auth';
 import RaceRecorderTableFooter from './RaceRecorderTableFooter';
-
-interface createRowTypes {
-  record_id?: number, 
-  track_id?:number, 
-  drivers:Driver[], 
-  tracks:Track[], 
-  cars: Car[],
-  modify_record_id?: number,
-  session:Session|null
-}
-
-function createRecordRows({record_id, track_id, drivers, tracks, cars, modify_record_id, session}:createRowTypes) {
-  
-  const track = tracks.find( track => track.id === track_id );
-
-  if( !track ) {
-    return;
-  }    
-
-  return track.records.slice().sort((recordA, recorB) => {
-    return recordA.time - recorB.time;
-  }).map( (record, index) => {
-
-    let rowStyleClass = record_id && record_id === record.id ? 'animate__animated animate__bounce' : '';
-    rowStyleClass += modify_record_id === record.id ? ' beign-modified' : '';
-
-    const driver = drivers.find( driver => driver.id === record.drivers_id );
-    const car = cars.find( car => car.id === record.cars_id );
-    return <tr key={`tr-record-${index}`} className={rowStyleClass}>
-      <td>{new SecondParts(record.time).format}</td>
-      <td>{driver?.name}</td>
-      <td>{car?.name}</td>
-      <td><Score score={car?.scores} /></td>
-      {isAdmin(session) && ( 
-        <td className={`text-end`}>
-          <button type="button" 
-                    data-record-id={record.id}
-                    className="btn btn-primary modify-record me-sm-2 mb-2 mb-sm-0" >Muokkaa</button>          
-          <button type="button" 
-                    data-record-id={record.id}
-                    className="btn btn-primary delete-record" >Poista</button>
-        </td>)}
-    </tr>
-  }) 
-}
+import RaceRecorderTableRows from './RaceRecorderTableRow';
+import useWindowEventListener from '../../hooks/use-window-event-listener';
 
 export default function RaceRecorder() {  
-
+  
   const { data: session } = useSession();
+  const {t, i18n} = useTranslation();
   
   const state = useAppSelector( (state) => state.raceeditor );    
   const dispatch = useAppDispatch();
@@ -93,30 +51,19 @@ export default function RaceRecorder() {
     dispatch(fetchCars());
   }});
 
-  //Clear car's id when a document is clicked outside of the table
-  useEffect(() => {
-
-    function onBodyClick(event:MouseEvent) {    
-      const target = event.target as Element;
+  useWindowEventListener('click', (event) => {
+    const target = event.target as Element;
       
-      //Click outside table cell
-      if( !target.closest('.race-recorder ') ) {        
-        batch(() => {
-          dispatch(setTime(''));
-          dispatch(setRecordId(undefined));
-          dispatch(setModifyRecordId(undefined));
-          dispatch(setDriverId(undefined));
-        });
-      }    
-    }
-  
-    window.addEventListener( 'click', onBodyClick )
-
-    return () => {    //Cleanup
-      window.removeEventListener('click', onBodyClick);
+    //Click outside table cell
+    if( !target.closest('.race-recorder ') ) {        
+      batch(() => {
+        dispatch(setTime(''));
+        dispatch(setRecordId(undefined));
+        dispatch(setModifyRecordId(undefined));
+        dispatch(setDriverId(undefined));
+      });
     }
   });
-
 
   useEffect(() => {
     dispatch(fetchTracksDriversCars());  
@@ -265,13 +212,15 @@ export default function RaceRecorder() {
       dispatch(setDriverId( driverId ));                
     })    
   }  
+
+  const records = useSelector( selectTrackRecords );
       
   return (
     <section className="race-recorder container">
             
       {state.drivers.length === 0 && (
-        <WarningMessage title="Onglema havaittu" 
-                        message="Tietoja kuskeista ei ole tällä hetkellä saatavissa, onko yhteys tietokantaan poikki vai eikö tietokannasta löydy tietoa?" />
+        <WarningMessage title={t('racerecorder.database.connection.error.title')} 
+                        message={t('racerecorder.database.connection.error.description')}></WarningMessage>
       )}
 
 
@@ -281,16 +230,19 @@ export default function RaceRecorder() {
       )}
 
       { state.showConfirmDialog && (
-        <ConfirmModal title='Olet poistamassa aikaa.'
-                      text="Haluatko varmasti poistaa merkinnän?"
+        <ConfirmModal title={t('racerecorder.confirmdialog.deletetime.title')}
+                      text={t('racerecorder.confirmdialog.deletetime.description')}
                       confirmCallBack={onConfirmDelete} 
                       onCloseCallBack={onClose} ></ConfirmModal>
       )}
         
       <div className="row">
         <div className="col-lg-3 col-md-12">
-          <label htmlFor="track-select">Rata</label>
-          <select id="track-select" className="form-select" value={state.track_id} onChange={onTrackChange} aria-label="Valitse kenttä">
+          <label htmlFor="track-select">{t("racerecorder.track")}</label>
+          <select id="track-select" 
+                  className="form-select" 
+                  value={state.track_id} onChange={onTrackChange} 
+                  aria-label={t('racerecorder.choosetrack') ?? ''}>
            {sortTrackAlphabetically(state.tracks).map( track => {
               return <option key={track.id} value={track.id ? track.id : undefined}>{track.name}</option>
             })}
@@ -301,19 +253,19 @@ export default function RaceRecorder() {
         <>
         
         <div className='col-lg-3 col-md-12 mt-3 mt-lg-0 d-flex align-items-end'>          
-          <button type='button' className='btn btn-primary' onClick={updateTrack}>Muokkaa rataa</button>
-          <button type='button' className='btn btn-primary ms-2' onClick={createTrack}>Lisää rata</button>        
+          <button type='button' className='btn btn-primary' onClick={updateTrack}>{t('racerecorder.modifytrackbutton')}</button>
+          <button type='button' className='btn btn-primary ms-2' onClick={createTrack}>{t('racerecorder.createtrackbutton')}</button>        
         </div>
 
 
         <div className='col-md-12 col-lg-6 mt-3 mt-lg-0 d-flex justify-content-lg-end'>
 
           <div className='form-group ms-3'>
-            <label htmlFor="driver">Pelaaja</label>
+            <label htmlFor="driver">{t("racerecorder.driver")}</label>
             <select id="driver" className='form-control' 
               value={state.driver_id ? state.driver_id : ''}
               onChange={onDriverChanges}>
-              <option value="">Ei valintaa</option>
+              <option value="">{t('racerecorder.emptyoption')}</option>
               {state.drivers.map( driver => {
                 return <option value={driver.id ?? undefined} key={driver.id}>{driver.name}</option>
               })}
@@ -321,14 +273,14 @@ export default function RaceRecorder() {
           </div>
 
           <div className='form-group ms-3'>
-            <label htmlFor="car">Ajoneuvo</label>
+            <label htmlFor="car">{t("racerecorder.vehicle")}</label>
             
             <select id="car" 
                     onChange={onCarChanges}
                     value={state.car_id}
                     className='form-control' 
                     disabled={!state.cars.some( car => car.drivers_id === state.driver_id )}>
-              <option value="">Ei valintaa</option>                        
+              <option value="">{t('racerecorder.emptyoption')}</option>                        
               {sortCarsAlphabetically(state.cars.filter( car => car.drivers_id === state.driver_id )). map( car => {
                 return <option value={car.id ?? undefined} key={car.id}><CarOption car={car}></CarOption></option>
               })}
@@ -336,7 +288,7 @@ export default function RaceRecorder() {
           </div>    
 
           <div className='form-group ms-3'>
-            <label htmlFor="time">Aika</label>
+            <label htmlFor="time">{t("racerecorder.time")}</label>
             <input id="time" type="text" className='form-control' value={state.time || ''} onChange={onTimeChanges}></input>
           </div>
 
@@ -344,7 +296,7 @@ export default function RaceRecorder() {
             <button type="button" 
                     className='btn btn-primary' 
                     disabled={!(state.driver_id && state.car_id && SecondParts.validate(state.time))} 
-                    onClick={onClickModifyRecord}>{state.modify_record_id ? 'Muokkaa' : 'Lisää'}</button>
+                    onClick={onClickModifyRecord}>{state.modify_record_id ? t('racerecorder.modify') : t('racerecorder.add') }</button>
           </div>
         </div>  
 
@@ -356,32 +308,29 @@ export default function RaceRecorder() {
           <table className='table' onClick={onTableClick}>
             <thead>
               <tr>
-                <td>Aika</td>
-                <td>Kuski</td>
-                <td>Auto</td>
-                <td colSpan={2}>Auton pisteet</td>
+                <th>{t('racerecorder.table.time')}</th>
+                <th>{t('racerecorder.table.driver')}</th>
+                <th>{t('racerecorder.table.vehicle')}</th>
+                <th colSpan={2}>{t('racerecorder.table.scores')}</th>
               </tr>
             </thead>
 
             <tbody>              
-              {createRecordRows({ 
-                record_id: state.record_id,
-                track_id: state.track_id, 
-                drivers: state.drivers, 
-                tracks: state.tracks,
-                cars: state.cars,
-                modify_record_id: state.modify_record_id,
-                session
-              })}              
+              <RaceRecorderTableRows 
+                record_id={state.record_id}
+                track_id={state.track_id}
+                drivers={state.drivers}
+                tracks={state.tracks}
+                cars={state.cars}
+                records={records}
+                modify_record_id={state.modify_record_id}            
+                ></RaceRecorderTableRows>
             </tbody>
 
-            <RaceRecorderTableFooter records={useSelector( selectTrackRecords )}></RaceRecorderTableFooter>
+            <RaceRecorderTableFooter records={records}></RaceRecorderTableFooter>
 
           </table>
         </div>
-
-
-
       </div>
 
       {state.status === 'loading' && (

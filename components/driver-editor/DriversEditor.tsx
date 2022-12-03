@@ -21,12 +21,12 @@ import {
 import { useAppDispatch } from '../race-recorder/hooks';
 import { useAppSelector } from '../../lib/store';
 import { Car } from '../../types/types';
-import HighlightedText from './highlightedtext';
+import HighlightedText from './HighlightedText';
 import { batch } from 'react-redux';
 import WarningMessage from '../Warning';
 import Score from '../Score';
 import { useSession } from 'next-auth/react';
-import ConfirmModal from '../confirm-modal';
+import ConfirmModal from '../ConfirmModal';
 
 export default function DriversEditor() {
 

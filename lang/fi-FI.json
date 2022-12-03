@@ -1,0 +1,25 @@
+{
+  "translation": {
+    "racerecorder.database.connection.error.title": "Ongelma havaittu",
+    "racerecorder.database.connection.error.description": "Tietoja kuskeista ei ole tällä hetkellä saatavissa, onko yhteys tietokantaan poikki vai eikö tietokannasta löydy tietoa?",
+    "racerecorder.confirmdialog.deletetime.title": "Olet poistamassa aikaa.",
+    "racerecorder.confirmdialog.deletetime.description": "Haluatko varmasti poistaa merkinnän?",
+    "racerecorder.modifytrackbutton":"Muokkaa rataa",
+    "racerecorder.createtrackbutton":"Lisää rata",
+    "racerecorder.track":"Rata",
+    "racerecorder.choosetrack":"Valitse rata",
+    "racerecorder.driver": "Pelaaja",
+    "racerecorder.vehicle": "Ajoneuvo",
+    "racerecorder.time": "Aika",     
+    "racerecorder.emptyoption": "Ei valintaa",
+    "racerecorder.delete": "Poista",
+    "racerecorder.modify": "Muokkaa",
+    "racerecorder.add": "Lisää",
+
+    "racerecorder.table.time": "Aika",
+    "racerecorder.table.driver": "Kuski",
+    "racerecorder.table.vehicle": "Auto",
+    "racerecorder.table.scores": "Ajoneuvon pisteet"    
+  }
+}
+

@@ -239,7 +239,6 @@ export const editorSlice = createSlice({
       })
       .addCase(fetchTracksDriversCars.rejected, (state, action) => {
         state.status = 'failed';        
-        console.log(action)
         return state;
       })
 

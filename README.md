@@ -91,3 +91,10 @@ For inserting test data run `psql -U app -d db -a -f ./database/record-editor-da
 Database schema can be viewed with a MySQL Workbench app and file can be found from [./database/model.mwb](./database/model.mwb)
 
 ![Image](./public/database.png?raw=true)
+
+# Rest 
+
+  * https://racerecorder.herokuapp.com/api/tracks - GET - Get all tracks
+  * https://racerecorder.herokuapp.com/api/drivers - GET - Get all drivers
+  * https://racerecorder.herokuapp.com/api/cars - GET - Get all cars
+  * https://racerecorder.herokuapp.com/api/records - GET - Get all recoreds
