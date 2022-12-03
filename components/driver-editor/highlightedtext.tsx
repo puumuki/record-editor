@@ -4,7 +4,7 @@ interface HighlightedTextProps {
   searchText:string
 }
 
-export default function HighlightedText(props:HighlightedTextProps) {
+const HighlightedText = (props:HighlightedTextProps) => {
   const {text = '', searchText = ''} = props;  
   // Split text on highlight term, include term itself into parts, ignore case
   const parts:string[] = text.split(new RegExp(`(${searchText})`, 'gi'));
@@ -12,3 +12,5 @@ export default function HighlightedText(props:HighlightedTextProps) {
     return <span key={i}>{part.toLowerCase() === searchText.toLowerCase() ? <b>{part}</b> : part}</span>
   })}</span>;
 } 
+
+export default HighlightedText;
