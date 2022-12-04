@@ -36,7 +36,7 @@ export default async function handler(request: NextApiRequest, response: NextApi
   } catch (error: any) {
     response.json({
       status: 500,
-      message: `Error while fetching tracks data: ${error.message}`
+      message: `Error while fetching tracks data: ${error.message} ${error.stack}`
     })
   }
 }

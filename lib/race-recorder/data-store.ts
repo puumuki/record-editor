@@ -67,7 +67,7 @@ export async function getRecords(): Promise<GetRecords[]> {
 
   const result = await connection.query(sql) as any
 
-  return result.map((row: any): GetRecords => {
+  return result.rows.map((row: any): GetRecords => {
     return {
       track_id: row.track_id,
       record_time: row.record_time,
