@@ -1,14 +1,14 @@
-import { Pool } from "pg";
+import { Pool } from 'pg'
 
-let connection:Pool;
+let connection: Pool
 
-if( process.env.DATABASE_URL ) {
-  connection = new Pool({ 
+if (process.env.DATABASE_URL) {
+  connection = new Pool({
     connectionString: process.env.DATABASE_URL,
     ssl: {
       rejectUnauthorized: false
     }
-  });  
+  })
 } else {
   connection = new Pool({
     user: process.env.PGSQL_USER,
@@ -16,7 +16,7 @@ if( process.env.DATABASE_URL ) {
     host: process.env.PGSQL_HOST,
     port: parseInt(process.env.PGSQL_PORT!),
     database: process.env.PGSQL_DATABASE
-  });  
+  })
 }
 
-export default connection;
+export default connection

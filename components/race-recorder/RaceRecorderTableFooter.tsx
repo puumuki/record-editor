@@ -1,34 +1,35 @@
-import { Driver, Record } from "../../types/types";
-import TimeView from "../TimeView";
+import { Record } from '../../types/types'
+import TimeView from '../TimeView'
 
-interface RaceRecorderTableFooter {
-  records: Record[],  
+interface RaceRecorderTableFooterProps {
+  records: Record[]
 }
 
-const RaceRecorderTableFooter = (props:RaceRecorderTableFooter) => {
-
+const RaceRecorderTableFooter = (props: RaceRecorderTableFooterProps): React.ReactElement => {
   const trackTotalPlayTime = props.records.reduce((accumulator, record) => {
     return accumulator + record.time
-  }, 0);
+  }, 0)
 
-  
-
-  return <tfoot>
-    <tr>
-      <th>Kokonaisajoaika</th>
-      <th>Ajokerrat</th>
-      <th></th>
-      <th></th>
-      <th></th>      
-    </tr>    
-    <tr>
-      <th><TimeView seconds={trackTotalPlayTime}></TimeView></th>
-      <th>{props.records.length}</th>
-      <th></th>
-      <th></th>
-      <th></th>      
-    </tr>
-  </tfoot>
+  return (
+    <tfoot>
+      <tr>
+        <th>Kokonaisajoaika</th>
+        <th>Ajokerrat</th>
+        <th></th>
+        <th></th>
+        <th></th>
+      </tr>
+      <tr>
+        <th>
+          <TimeView seconds={trackTotalPlayTime}></TimeView>
+        </th>
+        <th>{props.records.length}</th>
+        <th></th>
+        <th></th>
+        <th></th>
+      </tr>
+    </tfoot>
+  )
 }
 
-export default RaceRecorderTableFooter;
+export default RaceRecorderTableFooter

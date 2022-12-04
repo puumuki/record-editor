@@ -1,21 +1,20 @@
-import Ajv from "ajv";
-import schema from './types-schema.json';
+import Ajv from 'ajv'
+import schema from './types-schema.json'
 
-const ajv = new Ajv({allErrors: true});
+const ajv = new Ajv({ allErrors: true })
 
-
-export const createCarsValidator = () => {
+export const createCarsValidator = (): any => {
   return ajv.compile(schema.definitions.Car)
 }
 
-export const createTrackValidator = () => {
+export const createTrackValidator = (): any => {
   return ajv.compile(schema.definitions.Track)
 }
 
-export const createDriverValidator = () => {
+export const createDriverValidator = (): any => {
   return ajv.compile(schema.definitions.Driver)
 }
 
-export const createRecordValidator = () => {
+export const createRecordValidator = (): any => {
   return ajv.compile(schema.definitions.Record)
 }
