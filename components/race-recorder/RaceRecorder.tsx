@@ -204,9 +204,17 @@ export default function RaceRecorder(): React.ReactElement {
   function onTimeChanges(event: React.ChangeEvent): void {
     try {
       const inputElement = event.target as HTMLInputElement
+
+      // Little auto formatting so user can input whole time by using only the keyboard numpad.
+      let value = inputElement.value.replace(',', '.')
+
+      if (value.length >= 3) {
+        value = `${value.slice(0, 2)}:${value.slice(3)}`
+      }
+
       batch(() => {
-        dispatch(updateHistoryState({ ...state.historyState, time: inputElement.value }))
-        dispatch(setTime(inputElement.value))
+        dispatch(updateHistoryState({ ...state.historyState, time: value }))
+        dispatch(setTime(value))
       })
     } catch (error) {
       console.log(error)
