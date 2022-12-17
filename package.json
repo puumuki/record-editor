@@ -10,6 +10,7 @@
     "nextdev": "next dev",
     "dev": "node server.js",
     "build": "next build",
+    "prebuild": "vitest run",
     "start": "next start",
     "lint": "next lint",
     "test": "vitest"
