@@ -1,8 +1,8 @@
-export type HistoryState = {  
-  track_id?: number,
-  modify_record_id?: number,
-  time?: string,
-  drivers_id?: number,
+export interface HistoryState {
+  track_id?: number
+  modify_record_id?: number
+  time?: string
+  drivers_id?: number
   cars_id?: number
 }
 
@@ -11,38 +11,37 @@ export type HistoryState = {
  * @returns selected part of state object
  */
 export function readHistoryState(): HistoryState {
-  const url = new URL(window.location.href);
+  const url = new URL(window.location.href)
 
-  const valueAsNumber = (key:string):number|undefined => {
-    if( url.searchParams.has(key)) {
-      return parseInt( url.searchParams.get(key) ?? '' )
-    }    
+  const valueAsNumber = (key: string): number | undefined => {
+    if (url.searchParams.has(key)) {
+      return parseInt(url.searchParams.get(key) ?? '')
+    }
   }
 
-  const historyState:HistoryState = {    
+  const historyState: HistoryState = {
     track_id: valueAsNumber('track_id'),
     modify_record_id: valueAsNumber('modify_record_id'),
     time: url.searchParams.get('time') ?? undefined,
     drivers_id: valueAsNumber('drivers_id'),
     cars_id: valueAsNumber('cars_id')
-  };  
+  }
 
-  return historyState;
+  return historyState
 }
 
 /**
  * Update search parameters by given history state
  * @param state history state object
  */
-export function pushHistoryState( state: HistoryState ) {
-
-  const url = new URL(window.location.href);
+export function pushHistoryState(state: HistoryState): void {
+  const url = new URL(window.location.href)
 
   Object.entries(state).forEach(([key, value]) => {
-    if( value ) {
-      url.searchParams.set(key, String(value));      
-    }    
-  });
+    if (value) {
+      url.searchParams.set(key, String(value))
+    }
+  })
 
-  window.history.pushState({}, '', url);
+  window.history.pushState({}, '', url)
 }

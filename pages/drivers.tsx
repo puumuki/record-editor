@@ -1,17 +1,17 @@
-import Head from 'next/head';
-import store from '../lib/store';
-import { Provider } from 'react-redux';
-import DriversEditor from '../components/driver-editor/DriversEditor';
-import Header from '../components/Header';
+import Head from 'next/head'
+import store from '../lib/store'
+import { Provider } from 'react-redux'
+import DriversEditor from '../components/driver-editor/DriversEditor'
+import Header from '../components/Header'
 
-export default function DriverEditorPage() {    
+export default function DriverEditorPage(): React.ReactElement {
   return (
     <>
       <Head>
         <title>Kilpailurekisteri - Kuskit</title>
       </Head>
 
-        <Header></Header>
+      <Header></Header>
       <main>
         <Provider store={store}>
           <DriversEditor></DriversEditor>

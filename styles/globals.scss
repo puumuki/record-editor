@@ -1,20 +1,20 @@
 @import "variables";
 @import "bootsrap/bootstrap";
-@import "driver-editor"; 
+@import "driver-editor";
 @import "score";
 
 .modal.show {
   display: block;
 }
 
-
-
 .race-recorder {
   tr.beign-modified {
     outline: 2px solid rgb(0, 0, 0);
     background-color: #eee;
   }
+
   table.table td {
-    height: 50px;;
+    height: 50px;
+    ;
   }
 }

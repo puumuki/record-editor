@@ -1,25 +1,24 @@
-import { useEffect } from "react";
+import { useEffect } from 'react'
 
 interface PeriodicUpdateProps {
-  interval: number,
-  callback: Function,
+  interval: number
+  callback: Function
 }
 
 /**
  * Periodically
  * @param props control paramters
  */
-const useInterval = (props:PeriodicUpdateProps) => {
+const useInterval = (props: PeriodicUpdateProps): void => {
+  const { interval, callback } = props
 
-  const { interval, callback } = props;
-
-  useEffect( () => {
-    const intervalId = setInterval( callback, interval );
+  useEffect(() => {
+    const intervalId = setInterval(callback, interval)
 
     return () => {
-      clearInterval(intervalId);
+      clearInterval(intervalId)
     }
-  });
+  })
 }
 
-export default useInterval;
+export default useInterval
