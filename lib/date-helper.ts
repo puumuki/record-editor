@@ -1,12 +1,7 @@
-import dayjs from 'dayjs'
 
-import utc from 'dayjs/plugin/utc'
-import timezone from 'dayjs/plugin/timezone'
+import moment from 'moment-timezone'
 
-dayjs.extend(utc)
-dayjs.extend(timezone)
-
-dayjs.locale('fi-fi')
+const TIMEZONE = 'Europe/Helsinki'
 
 export interface DateTimeParts {
   date: string | null
@@ -35,7 +30,7 @@ export function unixTimeToLocalTime(unixTime: number): string {
  */
 export function dateTimeSeparated(unixTime: number): DateTimeParts {
   if (unixTime) {
-    const time = dayjs(unixTime) // .tz('Europe/Helsinki');
+    const time = moment(unixTime).tz(TIMEZONE)
 
     return {
       date: time.format('YYYY-MM-DD'),
@@ -52,5 +47,5 @@ export function dateTimeSeparated(unixTime: number): DateTimeParts {
  * @returns unix time
  */
 export function dateTimeSeparatedToUnixTime(parts: DateTimeParts): number {
-  return dayjs(`${parts.date} ${parts.time}`).valueOf()
+  return moment(`${parts.date} ${parts.time}`).tz(TIMEZONE, true).unix() * 1000
 }
